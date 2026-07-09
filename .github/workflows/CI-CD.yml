@@ -73,7 +73,6 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
-          user: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
             echo "Connected to Bastion. Target -> WAS..."
@@ -81,5 +80,5 @@ jobs:
             
             # 2. Bastion에서 WAS로 SSH 접속과 동시에 명령어 원격 실행
             cd /tmp
-            ssh -i ktb-community-key.pem ubuntu@${{ secrets.EC2_WAS_HOST }}
+            ssh -i {{secrets.EC2_WAS_KEY}} ubuntu@${{ secrets.EC2_WAS_HOST }}
               "sudo systemctl daemon-reload && sudo systemctl restart my_crud.service"
