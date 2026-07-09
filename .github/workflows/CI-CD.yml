@@ -58,6 +58,7 @@ jobs:
 
       # 6. EC2에 Docker 실행 명령 전달
       - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           user: ${{ secrets.EC2_USER }}
