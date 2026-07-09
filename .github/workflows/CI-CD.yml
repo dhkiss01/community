@@ -12,6 +12,9 @@ jobs:
       # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Run a build script
+        run: npm run build
 
       # 2. JDK 설정
       - name: Set up JDK 21
