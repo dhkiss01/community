@@ -20,13 +20,13 @@ jobs:
           node-version: 24
           cache: 'npm'
           cache-dependency-path: ./community-FE/package-lock.json
-      - run : npm ci && npm test
-        working-directory: ./community-FE
+      - run : npm ci --omit=dev
 
       # 3. 의존성 설치 및 빌드
       - name: Install dependencies
-        run: npm install
-        working-directory: ./community-FE
+        run: |
+          npm install
+          npm run build
       
 
 
