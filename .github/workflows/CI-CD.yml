@@ -81,13 +81,4 @@ jobs:
           script: |
             echo "Connected to Bastion. Target -> WAS..."
 
-            # 2. Bastion에서 WAS로 SSH 접속과 동시에 명령어 원격 실행
-            sudo ssh -i /tmp/ktb-community-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_WAS_HOST }} 
-            sudo docker compose pull
-              
-            # 3. systemd 서비스 재시작 (새 이미지로 컨테이너가 다시 뜹니다)
-            sudo systemctl daemon-reload
-            sudo systemctl restart my_crud.service
-              
-            echo "Deployment completed successfully!"
-            EOF 
+            sudo ssh -i /tmp/ktb-community-key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_WAS_HOST }} "cd /var/www/backend/4-lukas-community-BE && sudo docker compose pull && sudo systemctl daemon-reload && sudo systemctl restart my_crud.service"
