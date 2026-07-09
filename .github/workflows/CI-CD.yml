@@ -18,13 +18,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
+          cache: 'npm'
 
       # 3. 의존성 설치 및 빌드
       - name: Install dependencies
         run: npm install
-
-      - name: Build frontend
-        run: npm run build
 
 
       # 2. JDK 설정
