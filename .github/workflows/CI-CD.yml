@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+          cache-dependency-path: ./package-lock.json
+          
 
       # 3. 의존성 설치 및 빌드
       - name: Install dependencies
