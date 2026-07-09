@@ -9,29 +9,46 @@ jobs:
   CI-CD:
     runs-on: ubuntu-latest
     steps:
-      # 1. 코드 체크아웃 (가장 먼저 수행)
+      # 1. 코드 체크아웃
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # 2. JDK 설정
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
 
       # 3. Gradle 빌드 (jar 파일 생성)
       - name: Build with Gradle
+        run: chmod -x ./gradlew
+        working-directory: ./community-BE
+
+      # 4. application.yaml 생성
+      - name: Generate application.yaml
+        run: |
+          mkdir -p community-BE/src/main/resources
+          echo "${{secrets.APPLICATION_YAML}}" > community-BE/src/main/resources/application.yaml
+
+      # 5. Gradle 빌드 (jar 파일 생성 테스트 제외)
+      - name : Build with Gradle
         run: ./gradlew build -x test
 
-      # 4. Docker Hub 로그인 및 빌드/푸시 (배포 전에 이미지가 먼저 올라가야 함)
-      - name: Docker build & push 
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker build -t zven408/community-be:1.0.0 .
-          docker push zven408/community-be:1.0.0
+      # 6. Docker 로그인
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 5. AWS 인증 설정
+      # 7. Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker images
+        run: |
+          docker build -t zven408/community-be-app:1.0.0 ./community-BE
+          docker push zven408/community-be-app:1.0.0
+
+      # 8. AWS 인증 설정
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -39,18 +56,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_S3_REGION }}
 
-      # 6. EC2에 SSM으로 Docker 실행 명령 전달
-      - name: Deploy to EC2 using SSM
+      # 6. EC2에 Docker 실행 명령 전달
+      - name: Deploy to EC2
         run: |
-          # 1. docker-compose.yml이 있는 디렉토리로 이동
-          # 2. 최신 이미지 pull (새로 푸시된 1.0.0 이미지를 가져옴)
-          # 3. 기존 컨테이너 중지 및 삭제하고 새 컨테이너 백그라운드로 실행
-          COMMAND="cd /var/www/backend/4-lukas-community-BE && sudo docker compose pull && 
-          sudo docker compose down && sudo docker compose up -d"
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          user: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "bastion login to EC2..."
+            cd /tmp
+            # 1. bastion 서버에 SSH 접속 후 WAS EC2로 접속
+            sudo ssh -i ${{ secrets.EC2_WAS_KEY }} ubuntu@${{ secrets.EC2_WAS_PRIVATE_IP }}
+            sudo systemctl daemon-reload
+            sudo systemctl restart my_crud.service
           
-          aws ssm send-command \
-            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Deploying Docker Compose Application" \
-            --parameters "commands=[$COMMAND]" \
-            --region ${{ secrets.AWS_S3_REGION }}
