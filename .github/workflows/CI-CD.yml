@@ -90,4 +90,4 @@ jobs:
             sudo systemctl restart my_crud.service
               
             echo "Deployment completed successfully!"
-          EOF
+            EOF 
