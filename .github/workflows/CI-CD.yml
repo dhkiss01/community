@@ -23,6 +23,7 @@ jobs:
       # 3. 의존성 설치 및 빌드
       - name: Install dependencies
         run: npm ci
+        working-directory: ./community-FE
 
 
       # 2. JDK 설정
