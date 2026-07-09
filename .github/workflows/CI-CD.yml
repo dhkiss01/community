@@ -80,9 +80,8 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             echo "Connected to Bastion. Target -> WAS..."
-          
-            
+
             # 2. Bastion에서 WAS로 SSH 접속과 동시에 명령어 원격 실행 하기
             cd /tmp
-            ssh -i /home/ubuntu/was_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_WAS_HOST }} 
+            ssh -i ${{ secrets.EC2_WAS_KEY }} -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_WAS_HOST }} 
             "sudo systemctl daemon-reload && sudo systemctl restart my_crud.service"
