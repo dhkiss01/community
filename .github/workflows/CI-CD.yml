@@ -19,10 +19,13 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: npm install --omit=dev
+        run: npm install
+        working-directory: ./community-FE
       
       - name: Run a build script
         run: npm run build
+        working-directory: ./community-FE
+
 
       # 2. JDK 설정
       - name: Set up JDK 21
