@@ -1,9 +1,8 @@
 package com.ktb.lukas.config;
 
-import com.ktb.lukas.auth.JwtAuthenticationFilter;
-import com.ktb.lukas.api.ApiResponse;
-import com.ktb.lukas.exception.ErrorCode;
-import lombok.RequiredArgsConstructor;
+import java.io.PrintWriter;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,10 +18,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import tools.jackson.databind.ObjectMapper;
 
-import java.io.PrintWriter;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ktb.lukas.api.ApiResponse;
+import com.ktb.lukas.auth.JwtAuthenticationFilter;
+import com.ktb.lukas.exception.ErrorCode;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +36,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/users",
-            "/users/token/refresh"
+            "/users/token/refresh",
+            "/actuator/health/**"
     };
 
     @Bean
@@ -45,7 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users").permitAll()
-                        // 회원가입(POST /users) 허용git push origin develop
+                        // 회원가입(POST /users) 허용
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         // 로그인(POST /auth) 허용 -> 단, GET /auth는 인증 필요하므로 메서드 명시
                         .requestMatchers(HttpMethod.POST, "/auth").permitAll()

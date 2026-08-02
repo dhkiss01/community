@@ -1,10 +1,11 @@
 package com.ktb.lukas.handler;
-import com.ktb.lukas.api.ApiResponse;
-import com.ktb.lukas.exception.CustomException;
-import com.ktb.lukas.exception.ErrorCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.ktb.lukas.api.ApiResponse;
+import com.ktb.lukas.exception.CustomException;
+import com.ktb.lukas.exception.ErrorCode;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -17,6 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception e) {
+        e.printStackTrace();
         return ResponseEntity
                 .status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));

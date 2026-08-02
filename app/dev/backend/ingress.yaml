@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-app-route
+  namespace: dev
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+    - host: charlie-jjang.xyz
+      http:
+        paths:
+          - path: /
+            pathtype: Prefix
+            backend:
+              service:
+                name: fe-cluster-service
+                port:
+                  number: 80
+
+          - path: /api
+            pathtype: Prefix
+            backend:
+              service:
+                name: cluster-service
+                port:
+                  number: 80
