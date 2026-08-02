@@ -15,7 +15,7 @@ const headerDropdownMenu = () => {
     modifyPasswordLink.href = '/html/modifyPassword.html';
     logoutLink.addEventListener('click', async () => {
         try {
-            await fetch(`${getServerUrl()}/v1/auth/logout`, {
+            await fetch(`${getServerUrl()}/auth/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });

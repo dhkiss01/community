@@ -129,7 +129,7 @@ const changeEventHandler = async (event, uid) => {
             // 파일 업로드를 위한 POST 요청 실행
             try {
                 const { ok, data } = await requestJson(
-                    `${getServerUrl()}/v1/users/upload/profile-image`,
+                    `${getServerUrl()}/users/upload/profile-image`,
                     {
                         method: 'POST',
                         body: formData,
@@ -185,7 +185,7 @@ const deleteAccount = async () => {
 
         if (status === HTTP_OK) {
             try {
-                await requestJson(`${getServerUrl()}/v1/auth/logout`, {
+                await requestJson(`${getServerUrl()}/auth/logout`, {
                     method: 'POST',
                     credentials: 'include',
                 });

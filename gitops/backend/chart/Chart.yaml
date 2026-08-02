@@ -1,0 +1,6 @@
+apiVersion: v2
+name: community-app
+description: helm community be projects
+type: application
+version: 0.1.0
+appVersion: "1.0.1"

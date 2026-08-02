@@ -1,0 +1,70 @@
+namespace: dev
+
+app:
+  name: spring-boot
+
+replicaCount: 2
+minReadySeconds: 0
+revisionHistoryLimit: 10
+
+strategy:
+  maxSurge: 1
+  maxUnavailable: 1
+
+image:
+  repository: zven408/community-be-app
+  tag: "1.1.6"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 300m
+    memory: 256Mi
+
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+secret:
+  name: backendsecret
+
+configMap:
+  name: backend-config
+
+probes:
+  startup:
+    path: /actuator/health
+    port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+  liveness:
+    path: /actuator/health
+    port: 8080
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    failureThreshold: 3
+    
+  readiness:
+    path: /actuator/health
+    port: 8080
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    failureThreshold: 2
+
+topologySpread:
+  maxSkew: 1
+  whenUnsatisfiable: ScheduleAnyway
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.charlie-jjang.xyz
+  path: /

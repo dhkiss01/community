@@ -1,0 +1,56 @@
+namespace: dev
+
+app:
+  name: nodejs
+
+replicaCount: 2
+
+strategy:
+  maxSurge: 1
+  maxUnavailable: 1
+
+image:
+  repository: zven408/community-fe-app
+  tag: "1.0.4"
+  pullPolicy: IfNotPresent
+
+imagePullSecret: regcred
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+  limits:
+    cpu: 300m
+    memory: 256Mi
+
+probes:
+  liveness:
+    path: /
+    port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 20
+    failureThreshold: 3
+
+  readiness:
+    path: /
+    port: 3000
+    initialDelaySeconds: 3
+    periodSeconds: 10
+    failureThreshold: 3
+
+topologySpread:
+  maxSkew: 1
+  whenUnsatisfiable: ScheduleAnyway
+
+ingress:
+  enabled: true
+  className: nginx
+  host: charlie-jjang.xyz
+  path: /
