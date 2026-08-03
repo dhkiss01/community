@@ -1,5 +1,13 @@
 package com.ktb.lukas.service;
 
+import java.util.List;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ktb.lukas.dto.PostRequestDto;
 import com.ktb.lukas.dto.PostResponseDto;
 import com.ktb.lukas.entity.Post;
@@ -9,13 +17,8 @@ import com.ktb.lukas.exception.CustomException;
 import com.ktb.lukas.exception.ErrorCode;
 import com.ktb.lukas.repository.PostRepository;
 import com.ktb.lukas.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +63,18 @@ public class PostService {
                 .map(PostResponseDto::new)
                 .toList();
     }
+
+    // 이거
+    @Transactional
+    public List<PostResponseDto> getPostsBySearch(String keyword, int page) {
+        Pageable pageable = PageRequest.of(page, 10);
+
+        return postRepository.findByKeyword(keyword, pageable)
+                .stream()
+                .map(PostResponseDto::new)
+                .toList();
+    }
+
 
     @Transactional
     public PostResponseDto updatePost(Long userId, Long postId, PostRequestDto request) {

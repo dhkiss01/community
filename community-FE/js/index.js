@@ -101,24 +101,43 @@ const loadBoardItems = async ({ reset = false } = {}) => {
 const addSearchEvent = () => {
     const searchInput = document.querySelector('#searchInput');
     const searchButton = document.querySelector('.searchButton');
+
     if (!searchInput || !searchButton) return;
 
     const runSearch = async () => {
         const trimmedKeyword = searchInput.value.trim();
+
+        // 2글자 미만 검색 방지
         if (trimmedKeyword.length > 0 && trimmedKeyword.length < 2) {
             Dialog('검색 실패', '검색어는 2글자 이상 입력해주세요.');
             return;
         }
+
+        // 같은 검색어면 다시 요청하지 않음
+        if (currentKeyword === trimmedKeyword) return;
+
         currentKeyword = trimmedKeyword;
         updateSortVisibility();
         await loadBoardItems({ reset: true });
     };
 
+    // 검색 버튼
     searchButton.addEventListener('click', runSearch);
+
+    // Enter 검색
     searchInput.addEventListener('keydown', event => {
         if (event.key === 'Enter') {
             event.preventDefault();
             runSearch();
+        }
+    });
+
+    // 검색어를 모두 지우면 전체 게시글 조회
+    searchInput.addEventListener('input', async () => {
+        if (searchInput.value.trim() === '' && currentKeyword !== '') {
+            currentKeyword = '';
+            updateSortVisibility();
+            await loadBoardItems({ reset: true });
         }
     });
 };
@@ -133,6 +152,7 @@ const addSortEvent = () => {
         if (currentKeyword.trim().length === 0) return;
         await loadBoardItems({ reset: true });
     });
+    
 };
 
 const addInfinityScrollEvent = () => {
