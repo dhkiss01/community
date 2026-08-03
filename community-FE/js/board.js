@@ -98,10 +98,8 @@ const setBoardDetail = data => {
                 if (ok) {
                     isLiked = true;
                     setLikeButtonState(likeButtonElement, isLiked);
-                    if (likeData && likeData.likeCount !== undefined) {
-                        likeCountElement.textContent = formatCount(
-                            likeData.likeCount,
-                        );
+                    if (likeData !== undefined) {
+                        likeCountElement.textContent = formatCount(likeData);
                     }
                 } else if (status === 409 && code === 'POST_ALREADY_LIKED') {
                     isLiked = true;
@@ -116,12 +114,10 @@ const setBoardDetail = data => {
                     data.id,
                 );
                 if (ok) {
-                    isLiked = false;
+                    isLiked = false;s
                     setLikeButtonState(likeButtonElement, isLiked);
-                    if (likeData && likeData.likeCount !== undefined) {
-                        likeCountElement.textContent = formatCount(
-                            likeData.likeCount,
-                        );
+                    if (likeData !== undefined) {
+                        likeCountElement.textContent = formatCount(likeData);
                     }
                 } else if (status === 409 && code === 'POST_ALREADY_UNLIKED') {
                     isLiked = false;
