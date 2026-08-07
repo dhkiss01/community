@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PostViewedEvent {
+public class PostViewEvent {
     private Long viewerId;
     private Long postId;
 

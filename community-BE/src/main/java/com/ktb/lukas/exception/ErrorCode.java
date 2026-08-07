@@ -34,6 +34,7 @@ public enum ErrorCode {
     NICKNAME_HAS_WHITESPACE(HttpStatus.BAD_REQUEST, "띄어쓰기를 없애주세요."),
     NICKNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "닉네임은 최대 10자 까지 작성 가능합니다."),
     EMPTY_PROFILE_IMAGE(HttpStatus.BAD_REQUEST, "프로필 사진을 추가해주세요."),
+    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "이미지 파일은 1개만 업로드할 수 있습니다."),
     INVALID_PROFILE_IMAGE(HttpStatus.BAD_REQUEST, "유효한 파일이 아닙니다.(올바른 사진 확장자가 아닐 경우)"),
 
     // Post
@@ -50,7 +51,6 @@ public enum ErrorCode {
     EMPTY_POST_TITLE(HttpStatus.BAD_REQUEST, "제목을 입력해주세요."),
     POST_TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "제목은 최대 26자까지 작성 가능합니다."),
     EMPTY_POST_CONTENT(HttpStatus.BAD_REQUEST, "내용을 입력해주세요."),
-    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "이미지 파일은 1개만 업로드할 수 있습니다."),
 
     // Postcomment
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),

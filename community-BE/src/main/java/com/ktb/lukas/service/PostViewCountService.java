@@ -19,7 +19,7 @@ public class PostViewCountService {
     private final PostRepository postRepository;
 
     @Transactional
-    public void increase(Long userId, Long postId) {    // 수정 필요함 userId를 어떻게 써야할지 아직은 고민된다.
+    public void increase(Long postId) {
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));

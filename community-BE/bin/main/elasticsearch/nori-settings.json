@@ -1,0 +1,29 @@
+{
+  "analysis": {
+    "char_filter": {
+      "remove_space": {
+        "type": "pattern_replace",
+        "pattern": "\\s+",
+        "replacement": ""
+      }
+    },
+    "tokenizer": {
+      "nori_tokenizer_mixed": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed"
+      }
+    },
+    "analyzer": {
+      "search_analyzer": {
+        "type": "custom",
+        "char_filter": [
+          "remove_space"
+        ],
+        "tokenizer": "nori_tokenizer_mixed",
+        "filter": [
+          "lowercase"
+        ]
+      }
+    }
+  }
+}
