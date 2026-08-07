@@ -31,7 +31,7 @@ const getBoardItem = async (pageValue = 0) => {
             ? await getPosts(pageValue) 
             : await searchPosts(
                 currentKeyword,
-                pageValue,   // page=0
+                pageValue,  
                 currentSort, 
             );
     if (!result.ok) {
