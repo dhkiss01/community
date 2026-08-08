@@ -1,8 +1,15 @@
 package com.ktb.lukas.entity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.*;
 
 @Entity
 @Getter
@@ -49,9 +56,8 @@ public class Post extends BaseTime{
     }
 
     public void increaseViewCount() { this.viewCount++; }
+
     public void increaseLikeCount() { this.likeCount++; }
-
-
     public void decreaseLikeCount() {
         if (this.likeCount > 0) {
             this.likeCount--;

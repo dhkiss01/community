@@ -1,3 +1,4 @@
+# $schema=invalid-url
 spring:
   cloud:
     aws:
@@ -10,49 +11,43 @@ spring:
         auto: false
       s3:
         bucket: ${AWS_S3_BUCKET}
-
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 30MB
+      
+  logging:
+  level:
+    org.springframework.boot.actuate: TRACE
+    org.springframework.web: DEBUG
 
   datasource:
     url: ${DB_URL}
     username: ${DB_NAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    ddl-auto: none
 
-  jpa:
+  jpa:  
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
-
-  elasticsearch:
-    uris: http://elasticsearch-master:9200
-
-  data:
-    elasticsearch:
-      repositories:
-        enabled: true
 
   profiles:
     active: development
 
 logging:
   level:
-    org.springframework.data.elasticsearch.client: INFO
-    co.elastic.clients: INFO                            
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: TRACE
 
 jwt:
   secret: ${JWT_SKY}
   access-token-exp-seconds: 600
   refresh-token-exp-seconds: 12096000
-
 management:
   endpoints:
     web:

@@ -1,16 +1,27 @@
 package com.ktb.lukas.controller;
 
-import jakarta.validation.Valid;
-import com.ktb.lukas.dto.PostRequestDto;
-import com.ktb.lukas.dto.PostResponseDto;
-import com.ktb.lukas.api.ApiResponse;
-import com.ktb.lukas.service.PostService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ktb.lukas.api.ApiResponse;
+import com.ktb.lukas.dto.PostRequestDto;
+import com.ktb.lukas.dto.PostResponseDto;
+import com.ktb.lukas.service.PostService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/posts")
@@ -61,6 +72,19 @@ public class PostController {
         return ApiResponse.success(
                 "게시글 가져오기 성공",
                 result
+        );
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<List<PostResponseDto>> getPostByKeyword(@RequestParam String keyword,
+                                                         @RequestParam(value = "page", defaultValue = "0") int page,
+                                                         @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        List<PostResponseDto> result = postService.getPostsBySearch(keyword, page);
+
+        return ApiResponse.success(
+            "게시글 검색 성공",
+            result
         );
     }
     // 게시글 수정
