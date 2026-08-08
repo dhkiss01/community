@@ -11,7 +11,7 @@ strategy:
 
 image:
   repository: zven408/community-fe-app
-  tag: "1.0.6"
+  tag: "1.0.7"
   pullPolicy: IfNotPresent
 
 imagePullSecret: regcred
