@@ -17,7 +17,7 @@
 ## 📝 프로젝트 소개
 * **개발 기간**: 2026.05 ~ 진행 중
 * **서비스 설명**: 
-  안정적인 유저 관리와 보안 강화를 위해 JWT 기반의 인증/인가 시스템을 구축한 커뮤니티 백엔드 서비스입니다. CI/CD 파이프라인(GitHub Actions) 구축 및 Kubernetes, AWS RDS(MySQL) 환경에서 확장성 높은 아키텍처를 목표로 개발되었습니다.
+  안정적인 유저 관리와 보안 강화를 위해 JWT 기반의 인증/인가 시스템을 구축한 커뮤니티 백엔드 서비스입니다. GitHub Actions, Helm, Argo CD를 활용한 GitOps CI/CD 파이프라인 구축 및 Kubernetes, Prometheus, Grafana 기반의 모니터링 환경에서 확장성 높고 안정적인 아키텍처를 목표로 개발되었습니다.
 
 <br />
 
@@ -37,9 +37,15 @@
 
 ### DevOps & CI/CD
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=GitHub-Actions&logoColor=white)
+![ArgoCD](https://img.shields.io/badge/Argo_CD-EF7B4D?style=flat-square&logo=Argo&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-0F1689?style=flat-square&logo=Helm&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=Kubernetes&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
 ![AWS RDS](https://img.shields.io/badge/AWS_RDS-527FFF?style=flat-square&logo=Amazon-RDS&logoColor=white)
+
+### Monitoring & Observability
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=Prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=Grafana&logoColor=white)
 
 ### Environment & Tools
 ![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=Git&logoColor=white)
@@ -55,7 +61,8 @@
 - Java 17 이상
 - Gradle
 - MySQL (또는 AWS RDS 연결 설정)
-- Docker / Kubernetes (선택 사항)
+- Docker / Kubernetes / Helm / Argo CD (선택 사항)
+- Prometheus & Grafana (모니터링 옵션)
 
 ### Installation & Execution (설치 및 실행)
 
