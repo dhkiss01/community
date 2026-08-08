@@ -31,7 +31,7 @@ spring:
         use_sql_comments: true
 
   elasticsearch:
-    uris: http://elasticsearch-es-http.logging.svc.cluster.local:9200
+    uris: http://elasticsearch-master:9200
 
   data:
     elasticsearch:
