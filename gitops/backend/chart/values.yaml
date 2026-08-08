@@ -24,11 +24,11 @@ service:
 resources:
   requests:
     cpu: 300m
-    memory: 256Mi
+    memory: 512Mi
 
   limits:
     cpu: 500m
-    memory: 512Mi
+    memory: 1Gi
 
 secret:
   name: backendsecret
@@ -38,7 +38,7 @@ configMap:
 
 probes:
   startup:
-    path: /actuator/health
+    path: /actuator/health/liveness
     port: 8080
     initialDelaySeconds: 30
     periodSeconds: 5
@@ -46,14 +46,14 @@ probes:
     failureThreshold: 6
 
   liveness:
-    path: /actuator/health
+    path: /actuator/health/liveness
     port: 8080
     initialDelaySeconds: 0
     periodSeconds: 10
     failureThreshold: 3
     
   readiness:
-    path: /actuator/health
+    path: /actuator/health/readiness
     port: 8080
     initialDelaySeconds: 0
     periodSeconds: 5
