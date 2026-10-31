@@ -134,14 +134,9 @@ button svg {
   gap: 9px;
 }
 .brand img {
-  width: 43px;
-  height: 43px;
-}
-.brand strong {
-  font-size: 31px;
-  letter-spacing: -1.7px;
-  font-weight: 800;
-  color: var(--navy);
+  display: block;
+  width: 148px;
+  height: auto;
 }
 .account {
   margin-left: auto;
@@ -965,12 +960,9 @@ button svg {
     gap: 6px;
   }
   .brand img {
-    width: 36px;
-    height: 36px;
-  }
-  .brand strong {
-    font-size: 28px;
-    letter-spacing: -1.6px;
+    display: block;
+    width: 134px;
+    height: auto;
   }
   .account {
     gap: 14px;
@@ -1195,9 +1187,6 @@ button svg {
   }
   .account {
     gap: 10px;
-  }
-  .brand strong {
-    font-size: 25px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

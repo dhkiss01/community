@@ -129,7 +129,7 @@ function renderHeader() {
   const links = [["", "전체글"], ...Object.entries(boards)];
   document.querySelector("#site-header").className = "site-header";
   document.querySelector("#site-header").innerHTML = `<div class="header-inner">
-    <a class="brand" href="/" aria-label="더그아웃 홈"><img src="/public/dugout.svg?v=20261031-3" alt=""><strong>더그아웃</strong></a>
+    <a class="brand" href="/" aria-label="더그아웃 홈"><img class="brand-wordmark" src="/public/dugout-wordmark.svg?v=20261031-4" alt="더그아웃" width="148" height="35"></a>
     <div class="account">${user ? `<a href="/html/modifyInfo.html">${escape(user.nickname)}</a><button id="logout" type="button">로그아웃</button>` : '<a href="/html/login.html">로그인</a><a href="/html/signup.html">회원가입</a>'}</div>
     </div><div class="nav-band"><nav class="top-nav" aria-label="게시판">${links.map(([value, label]) => `<a href="${boardUrl(value)}" ${page === "home" && selectedBoard() === value ? 'class="active" aria-current="page"' : ""}>${label}</a>`).join("")}</nav></div>`;
   document.querySelector("#logout")?.addEventListener("click", () => {
