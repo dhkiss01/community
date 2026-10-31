@@ -48,6 +48,7 @@ public class PostService {
                 author
         );
 
+        post.changeCategory(request.getCategory());
         Post savedPost = postRepository.save(post);
         postSearchOutbox.enqueue(savedPost.getId());
         return new PostResponseDto(savedPost);
@@ -63,25 +64,25 @@ public class PostService {
     // 게시글 전부 조회
     // fetch join을 통해 N+1 문제 해결
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPosts(int page, int size) {
+    public List<PostResponseDto> getPosts(int page, int size, com.ktb.lukas.entity.PostCategory category) {
         validatePage(page, size);
         Pageable pageable = PageRequest.of(page, size);
 
-        return postRepository.findPostsWithAuthor(pageable)
+        return postRepository.findPostsWithAuthor(pageable, category)
                 .stream()
                 .map(PostResponseDto::new)
                 .toList();
     }
     // 게시글 검색
-    public List<PostResponseDto> getPostsBySearch(String keyword, int page, int size, String sort) {
+    public List<PostResponseDto> getPostsBySearch(String keyword, int page, int size, String sort, com.ktb.lukas.entity.PostCategory category) {
         validatePage(page, size);
         if (!List.of("recent", "relevance").contains(sort)) throw new CustomException(ErrorCode.INVALID_SEARCH_PAGE);
         if (keyword == null || keyword.isBlank()) return List.of();
         String normalized = keyword.strip();
         if (normalized.length() > 100) throw new CustomException(ErrorCode.INVALID_SEARCH_KEYWORD);
         Pageable pageable = PageRequest.of(page, size);
-        if (!postSearchService.isEnabled()) return postReadService.searchDatabase(normalized, pageable);
-        return postReadService.getSearchResults(postSearchService.searchIds(normalized, pageable, sort));
+        if (!postSearchService.isEnabled()) return postReadService.searchDatabase(normalized, pageable, category);
+        return postReadService.getSearchResults(postSearchService.searchIds(normalized, pageable, sort, category));
     }
 
     // 게시글 수정
@@ -94,6 +95,7 @@ public class PostService {
             throw new CustomException(ErrorCode.POST_UPDATE_FORBIDDEN); // 게시글 작성자가 아니면 수정할 수 없음
         }
 
+        post.changeCategory(request.getCategory());
         post.changeTitle(request.getTitle());
         post.changeContent(request.getContent());
         post.changeImage(request.getImage());

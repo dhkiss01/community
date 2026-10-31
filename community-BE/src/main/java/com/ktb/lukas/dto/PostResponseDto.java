@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class PostResponseDto {
     private Long id;
     private String title;
+    private com.ktb.lukas.entity.PostCategory category;
     private String content;
     private String image;
 
@@ -23,6 +24,7 @@ public class PostResponseDto {
 
     public PostResponseDto(Post post) {
         this.id = post.getId();
+        this.category = post.getCategory();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.image = post.getImage();

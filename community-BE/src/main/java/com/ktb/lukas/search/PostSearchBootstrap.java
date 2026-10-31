@@ -22,16 +22,18 @@ public class PostSearchBootstrap implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        boolean created = false;
         if (!client.indices().exists(request -> request.index(properties.getIndex())).value()) {
             try (var settings = new ClassPathResource("elasticsearch/posts-index.json").getInputStream()) {
                 try {
                     client.indices().create(request -> request.index(properties.getIndex()).withJson(settings));
+                    created = true;
                 } catch (ElasticsearchException e) {
                     if (!"resource_already_exists_exception".equals(e.error().type())) throw e;
                 }
             }
         }
-        if (properties.isReindexOnStartup()) {
+        if (created || properties.isReindexOnStartup()) {
             transactions.executeWithoutResult(status -> outbox.enqueueAll());
         }
         ready = true;

@@ -48,11 +48,12 @@ public class PostController {
     @GetMapping
     public ApiResponse<List<PostResponseDto>> getPosts(
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(required = false) com.ktb.lukas.entity.PostCategory category
     ) {
 
         // 서비스에서 모든 게시글 리스트를 가져옵니다.
-        List<PostResponseDto> result = postService.getPosts(page, size);
+        List<PostResponseDto> result = postService.getPosts(page, size, category);
 
         return ApiResponse.success(
                 "모든 게시글 가져오기 성공",
@@ -80,9 +81,10 @@ public class PostController {
     public ApiResponse<List<PostResponseDto>> getPostByKeyword(@RequestParam String keyword,
                                                          @RequestParam(value = "page", defaultValue = "0") int page,
                                                          @RequestParam(value = "size", defaultValue = "10") int size,
-                                                         @RequestParam(defaultValue = "relevance") String sort
+                                                         @RequestParam(defaultValue = "relevance") String sort,
+                                                         @RequestParam(required = false) com.ktb.lukas.entity.PostCategory category
     ) {
-        List<PostResponseDto> result = postService.getPostsBySearch(keyword, page, size, sort);
+        List<PostResponseDto> result = postService.getPostsBySearch(keyword, page, size, sort, category);
 
         return ApiResponse.success(
             "게시글 검색 성공",

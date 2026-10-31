@@ -25,8 +25,8 @@ public class PostReadService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND)));
     }
 
-    public List<PostResponseDto> searchDatabase(String keyword, Pageable pageable) {
-        return postRepository.findByKeyword(keyword, pageable).stream().map(PostResponseDto::new).toList();
+    public List<PostResponseDto> searchDatabase(String keyword, Pageable pageable, com.ktb.lukas.entity.PostCategory category) {
+        return postRepository.findByKeyword(keyword, pageable, category).stream().map(PostResponseDto::new).toList();
     }
 
     public List<PostResponseDto> getSearchResults(List<Long> ids) {

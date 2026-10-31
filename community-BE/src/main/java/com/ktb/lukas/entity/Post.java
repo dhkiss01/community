@@ -24,6 +24,10 @@ public class Post extends BaseTime{
     @Column(name = "post_title")
     private String title;
 
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @Column(nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'FREE'")
+    private PostCategory category = PostCategory.FREE;
+
     @Column(name = "post_content", columnDefinition = "TEXT")
     private String content;
 
@@ -47,6 +51,10 @@ public class Post extends BaseTime{
         this.likeCount = 0;
         this.commentCount = 0;
 
+    }
+
+    public void changeCategory(PostCategory category) {
+        if (category != null) this.category = category;
     }
 
     public void changeImage(String image) { this.image = image; }

@@ -10,7 +10,7 @@ async function api(path, method, data, token) {
 const password = 'DugoutDemo1!';
 const email = 'demo@dugout.local';
 try { await api('/users', 'POST', { email, password, nickname: '더그아웃지기' }); } catch (e) { if (!e.message.includes('중복')) throw e; }
-const { token } = await api('/auth', 'POST', { email, password });
+const { token, user } = await api('/auth', 'POST', { email, password });
 const posts = [
     ['처음 직관 가는 친구에게 해주고 싶은 말', '경기 시작 전에 조금 일찍 가보세요. 구장 한 바퀴를 돌고 연습하는 선수들을 보는 것도 직관의 즐거움이에요. 여러분만의 직관 팁도 궁금합니다.'],
     ['한화 불펜, 어떤 기록부터 보면 좋을까요?', '평균자책점뿐 아니라 볼넷과 탈삼진 비율도 같이 보고 있어요. 숫자 뒤의 이야기를 함께 나눠보고 싶습니다.'],
@@ -20,5 +20,11 @@ const posts = [
     ['롯데 원정 직관 준비물 같이 챙겨요', '모바일 티켓과 보조 배터리는 꼭 챙기고 있어요. 계절마다 달라지는 준비물도 댓글로 알려주세요.'],
 ];
 const existing = await api('/posts?size=100', 'GET');
-for (const [title, content] of posts) if (!existing.some(p => p.title === title)) await api('/posts', 'POST', { title, content }, token.accessToken);
+const categories = ['REVIEW', 'ANALYSIS', 'FREE', 'REVIEW', 'ANALYSIS', 'REVIEW'];
+for (const [index, [title, content]] of posts.entries()) {
+  const category = categories[index];
+  const current = existing.find(p => p.title === title);
+  if (!current) await api('/posts', 'POST', {title, content, category}, token.accessToken);
+  else if (current.userId === user.id && current.category !== category) await api(`/posts/${current.id}`, 'PATCH', {title, content, category}, token.accessToken);
+}
 console.log('로컬 샘플 게시글을 준비했습니다. demo@dugout.local / DugoutDemo1!');

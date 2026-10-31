@@ -24,15 +24,18 @@ public class PostSearchService {
         return properties.isEnabled();
     }
 
-    public List<Long> searchIds(String keyword, Pageable pageable, String sort) {
+    public List<Long> searchIds(String keyword, Pageable pageable, String sort, com.ktb.lukas.entity.PostCategory category) {
         String normalized = keyword.strip();
+        var query = new co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery.Builder()
+                .must(q -> q.multiMatch(match -> match.query(normalized)
+                        .fields("title^2", "content").type(TextQueryType.CrossFields)
+                        .operator(Operator.And).analyzer("baseball_search")));
+        if (category != null) query.filter(q -> q.term(t -> t.field("category").value(category.name())));
         try {
             return client.search(request -> request.index(properties.getIndex())
                     .from(Math.toIntExact(pageable.getOffset())).size(pageable.getPageSize())
                     .source(source -> source.fetch(false))
-                    .query(query -> query.multiMatch(match -> match.query(normalized)
-                            .fields("title^2", "content").type(TextQueryType.CrossFields)
-                            .operator(Operator.And).analyzer("baseball_search")))
+                    .query(query.build()._toQuery())
                     .sort(order -> "recent".equals(sort)
                             ? order.field(field -> field.field("createdAt").order(SortOrder.Desc))
                             : order.score(score -> score.order(SortOrder.Desc)))
