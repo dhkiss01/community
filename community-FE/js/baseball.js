@@ -37,6 +37,9 @@ const escape = (value) =>
   );
 const icon = (name, size = 18) => {
   const paths = {
+    pencil: '<path d="m15 4 5 5M4 20l4-1L20 7a2 2 0 0 0-3-3L5 16z"/>',
+    image:
+      '<rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="8" cy="9" r="1.5"/><path d="m4 18 6-6 4 4 3-3 4 5"/>',
     search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     ball: '<circle cx="12" cy="12" r="9"/><path d="M6 5c6 4 6 10 0 14M18 5c-6 4-6 10 0 14"/>',
@@ -123,18 +126,12 @@ async function request(
   return body?.data ?? body;
 }
 function renderHeader() {
+  const links = [["", "전체글"], ...Object.entries(boards)];
   document.querySelector("#site-header").className = "site-header";
   document.querySelector("#site-header").innerHTML = `<div class="header-inner">
-        <a class="brand" href="/" aria-label="더그아웃 홈"><img src="/public/dugout.svg" alt=""><strong>더그아웃</strong></a>
-        <nav class="top-nav" aria-label="게시판"><a href="/html/index.html" ${page === "home" && !selectedBoard() ? 'class="active" aria-current="page"' : ""}>전체글</a>${Object.entries(
-          boards,
-        )
-          .map(
-            ([value, label]) =>
-              `<a href="${boardUrl(value)}" ${page === "home" && selectedBoard() === value ? 'class="active" aria-current="page"' : ""}>${label}</a>`,
-          )
-          .join("")}</nav>
-        <div class="account">${user ? `<a href="/html/modifyInfo.html">${avatar(user.nickname)} ${escape(user.nickname)}</a><button id="logout" type="button">로그아웃</button>` : '<a class="button small" href="/html/login.html">로그인</a><a class="button small" href="/html/signup.html">회원가입</a>'}</div></div>`;
+    <a class="brand" href="/" aria-label="더그아웃 홈"><img src="/public/dugout.svg?v=20261031-3" alt=""><strong>더그아웃</strong></a>
+    <div class="account">${user ? `<a href="/html/modifyInfo.html">${escape(user.nickname)}</a><button id="logout" type="button">로그아웃</button>` : '<a href="/html/login.html">로그인</a><a href="/html/signup.html">회원가입</a>'}</div>
+    </div><div class="nav-band"><nav class="top-nav" aria-label="게시판">${links.map(([value, label]) => `<a href="${boardUrl(value)}" ${page === "home" && selectedBoard() === value ? 'class="active" aria-current="page"' : ""}>${label}</a>`).join("")}</nav></div>`;
   document.querySelector("#logout")?.addEventListener("click", () => {
     localStorage.removeItem("accessToken");
     location.assign("/");
@@ -164,7 +161,15 @@ function state(title, description, action = "") {
   return `<div class="list-state"><h3>${escape(title)}</h3><p>${escape(description)}</p>${action}</div>`;
 }
 function postRow(post) {
-  return `<article class="post-row"><div class="post-body"><h3><a href="/html/board.html?id=${post.id}" aria-label="${escape(post.title)}">${escape(post.title)}</a></h3><p class="post-excerpt">${escape(post.content)}</p><div class="post-meta"><span class="post-category">${boards[post.category] || boards.FREE}</span><span class="post-author">${avatar(post.nickname)}${escape(post.nickname || "야구팬")}</span><time datetime="${escape(post.createdAt)}">${date(post.createdAt)}</time><span>조회 ${count(post.viewCount)}</span><span>공감 ${count(post.likeCount)}</span></div></div><a class="reply-count" href="/html/board.html?id=${post.id}#comments" aria-label="댓글 ${count(post.commentCount)}개">${count(post.commentCount)}<small>댓글</small></a></article>`;
+  return `<article class="post-row">
+    <span class="post-id">${post.id}</span><span class="post-category">${boards[post.category] || boards.FREE}</span>
+    <div class="post-title"><h3><a href="/html/board.html?id=${post.id}" aria-label="${escape(post.title)}">${escape(post.title)}</a></h3><a class="comment-count" href="/html/board.html?id=${post.id}#comments" aria-label="댓글 ${count(post.commentCount)}개">[${count(post.commentCount)}]</a>${post.image ? '<span class="attachment-mark" aria-label="첨부 이미지">' + icon("image", 13) + "</span>" : ""}</div>
+    <div class="post-stats"><span class="post-author">${escape(post.nickname || "야구팬")}</span><time class="post-date" datetime="${escape(post.createdAt)}">${date(post.createdAt)}</time><span class="post-views"><span class="stat-label">조회 </span>${count(post.viewCount)}</span><span class="post-likes"><span class="stat-label">공감 </span>${count(post.likeCount)}</span></div>
+  </article>`;
+}
+function forumSidebar(category) {
+  const links = [["", "전체글"], ...Object.entries(boards)];
+  return `<aside class="forum-sidebar" aria-label="게시판 이용 메뉴"><section class="member-panel">${user ? `<strong>${escape(user.nickname)}</strong><a class="side-profile" href="/html/modifyInfo.html">내 정보</a><a class="side-write" aria-label="새 글 작성" href="/html/board-write.html${category ? "?category=" + category : ""}">글쓰기</a>` : '<p>글과 댓글 작성은 로그인 후 이용할 수 있습니다.</p><div class="member-links"><a href="/html/login.html">로그인</a><a href="/html/signup.html">회원가입</a></div>'}</section><section class="side-boards"><h2>커뮤니티</h2>${links.map(([value, label]) => `<a href="${boardUrl(value)}" class="${category === value ? "selected" : ""}">${label}<span aria-hidden="true">›</span></a>`).join("")}</section><section class="side-info"><h2>게시판 이용 안내</h2><p>게시글에 맞는 게시판을 선택해주세요.<br>직관 후기와 좌석 정보는 직관 이야기,<br>경기와 선수 기록은 경기 분석에 남겨주세요.</p></section></aside>`;
 }
 async function home() {
   let category = selectedBoard();
@@ -175,11 +180,14 @@ async function home() {
     controller,
     generation = 0;
   main.className = "page";
-  main.innerHTML = `<section class="board-section" aria-labelledby="feed-title"><div class="section-title"><h1 id="feed-title">${boards[category] || "전체글"}</h1><a id="write-link" class="button primary" href="/html/board-write.html${category ? "?category=" + category : ""}">${icon("plus", 15)} 글쓰기</a></div>
-    <form id="search-form" role="search" class="search">${icon("search")}<input id="search-input" name="q" type="search" maxlength="100" placeholder="구단, 선수, 제목, 내용 검색" aria-label="게시글 검색" value="${escape(keyword)}"><button type="submit">검색</button></form>
+  main.innerHTML = `<div class="forum-layout"><section class="board-section" aria-labelledby="feed-title">
+    <div class="breadcrumb">커뮤니티 <span aria-hidden="true">/</span> <span id="board-crumb">${boards[category] || "전체글"}</span></div>
+    <div class="section-title"><h1 id="feed-title">${boards[category] || "전체글"}</h1><a id="write-link" class="button primary" href="/html/board-write.html${category ? "?category=" + category : ""}">${icon("pencil", 14)} 글쓰기</a></div>
     <div class="team-row" aria-label="구단 이름으로 검색"><button class="chip" type="button" data-team="" aria-pressed="${!keyword}">전체</button>${teams.map((team) => `<button class="chip" type="button" data-team="${team}" aria-pressed="${keyword === team}">${team}</button>`).join("")}</div>
-    <div class="list-toolbar"><div class="result-context"><h3 id="result-title"></h3><button id="clear-search" class="text-button" type="button" hidden>초기화</button></div><label><span class="sr-only">검색 결과 정렬</span><select id="sort" aria-label="검색 결과 정렬"><option value="relevance">관련도순</option><option value="recent">최신순</option></select></label></div>
-    <div id="feed" aria-live="polite" aria-busy="true"></div><button id="more" class="load-more" type="button" hidden>게시글 더 보기</button><p id="end-note" class="end-note" hidden>마지막 게시글입니다.</p></section>`;
+    <div class="list-toolbar"><div class="result-context"><h3 id="result-title"></h3><button id="clear-search" class="text-button" type="button" hidden>초기화</button><label><span class="sr-only">검색 결과 정렬</span><select id="sort" aria-label="검색 결과 정렬"><option value="relevance">관련도순</option><option value="recent">최신순</option></select></label></div>
+    <form id="search-form" role="search" class="search"><input id="search-input" name="q" type="search" maxlength="100" placeholder="제목, 내용 검색" aria-label="게시글 검색" value="${escape(keyword)}"><button type="submit">검색</button></form></div>
+    <div class="table-head" aria-hidden="true"><span>번호</span><span>게시판</span><span>제목</span><span>글쓴이</span><span>날짜</span><span>조회</span><span>공감</span></div>
+    <div id="feed" aria-live="polite" aria-busy="true"></div><button id="more" class="load-more" type="button" hidden>게시글 더 보기</button><p id="end-note" class="end-note" hidden>마지막 게시글입니다.</p></section><div id="sidebar-slot">${forumSidebar(category)}</div></div>`;
   const feed = document.querySelector("#feed"),
     more = document.querySelector("#more");
   function context() {
@@ -189,6 +197,9 @@ async function home() {
       "/html/board-write.html" + (category ? "?category=" + category : "");
     document.title = "더그아웃";
     renderHeader();
+    document.querySelector("#board-crumb").textContent =
+      boards[category] || "전체글";
+    document.querySelector("#sidebar-slot").innerHTML = forumSidebar(category);
     document.querySelector("#result-title").textContent = keyword
       ? `“${keyword}” 검색 결과`
       : "최신 게시글";
