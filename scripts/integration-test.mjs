@@ -31,4 +31,4 @@ try {
     await api(`/posts/${post.id}/likes`, 'POST', undefined, 409);
 } finally { await api(`/posts/${post.id}`, 'DELETE'); }
 await eventually(async () => !(await api('/posts/search?keyword=' + encodeURIComponent('한화 직관') + '&size=100')).some(p => p.id === post.id));
-console.log('PASS: Nori/구단 약칭 검색, 수정·삭제 색인 동기화, 동시 조회수 30회·댓글 8개, 중복 공감 방지');
+console.log('PASS: Nori/구단 약칭 검색, 수정, 삭제 색인 동기화, 동시 조회수 30회, 댓글 8개, 중복 공감 방지');

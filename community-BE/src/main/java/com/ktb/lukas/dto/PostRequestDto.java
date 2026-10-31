@@ -10,6 +10,8 @@ public class PostRequestDto {
     @Size(max = 26)
     private String title;
 
+    private com.ktb.lukas.entity.PostCategory category;
+
     @NotBlank                               // 공백 여부 어노테이션
     @Size(max = 20000)
     private String content;

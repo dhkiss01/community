@@ -20,10 +20,11 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private final QPost post = QPost.post;
     private final QUser user = QUser.user;
 
-    public List<Post> findPostsWithAuthor(Pageable pageable) {
+    public List<Post> findPostsWithAuthor(Pageable pageable, com.ktb.lukas.entity.PostCategory category) {
         return queryFactory
                 .selectFrom(post)
                 .join(post.author, user).fetchJoin()
+                .where(category == null ? null : post.category.eq(category))
                 .orderBy(post.createdAt.desc(), post.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -31,13 +32,13 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
 
     }
-    public List<Post> findByKeyword(@Param("keyword") String keyword, Pageable pageable){
+    public List<Post> findByKeyword(String keyword, Pageable pageable, com.ktb.lukas.entity.PostCategory category){
         return queryFactory
                 .selectFrom(post)
                 .join(post.author, user).fetchJoin()
                 .where(
-                        post.title.contains(keyword)
-                                .or(post.content.contains(keyword)))
+                        post.title.contains(keyword).or(post.content.contains(keyword)),
+                        category == null ? null : post.category.eq(category))
                 .orderBy(post.createdAt.desc(), post.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

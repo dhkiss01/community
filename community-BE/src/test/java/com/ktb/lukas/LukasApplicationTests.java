@@ -60,4 +60,25 @@ class LukasApplicationTests {
         call(delete("/posts/" + id).header("Authorization", auth), 200);
         call(get("/posts/" + id), 404);
     }
+
+    @Test
+    void boardCategoriesAreIndependentOfKeywords() throws Exception {
+        call(post("/users").contentType("application/json").content(body(Map.of("email", "boards@example.com", "password", "Baseball1!", "nickname", "분류검증"))), 201);
+        String token = call(post("/auth").contentType("application/json").content(body(Map.of("email", "boards@example.com", "password", "Baseball1!"))), 200).at("/data/token/accessToken").asText();
+        long reviewId = 0;
+        for (String category : new String[]{"FREE", "REVIEW", "ANALYSIS"}) {
+            long id = call(post("/posts").header("Authorization", "Bearer " + token).contentType("application/json")
+                    .content(body(Map.of("title", "동일한 제목", "content", "동일한 본문", "category", category))), 201).at("/data/id").asLong();
+            if (category.equals("REVIEW")) reviewId = id;
+            mvc.perform(get("/posts").param("category", category)).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.length()").value(1)).andExpect(jsonPath("$.data[0].category").value(category));
+            mvc.perform(get("/posts/search").param("keyword", "동일한").param("category", category))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.data.length()").value(1));
+        }
+        call(patch("/posts/" + reviewId).header("Authorization", "Bearer " + token).contentType("application/json")
+                .content(body(Map.of("title", "동일한 제목", "content", "동일한 본문", "category", "ANALYSIS"))), 200);
+        mvc.perform(get("/posts").param("category", "REVIEW")).andExpect(jsonPath("$.data.length()").value(0));
+        mvc.perform(get("/posts").param("category", "ANALYSIS")).andExpect(jsonPath("$.data.length()").value(2));
+        call(get("/posts").param("category", "unknown"), 400);
+    }
 }

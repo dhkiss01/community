@@ -49,12 +49,13 @@ public class PostSearchWorker {
         if (ids.isEmpty()) return;
         String placeholders = ids.stream().map(id -> "?").collect(Collectors.joining(","));
         Map<Long, Map<String, Object>> documents = new HashMap<>();
-        jdbc.query("SELECT post_id, post_title, post_content, create_at FROM post WHERE post_id IN (" + placeholders + ")",
+        jdbc.query("SELECT post_id, post_title, post_content, create_at, category FROM post WHERE post_id IN (" + placeholders + ")",
                 result -> {
                     long id = result.getLong("post_id");
                     Timestamp createdAt = result.getTimestamp("create_at");
                     documents.put(id, Map.of("id", id, "title", Objects.toString(result.getString("post_title"), ""),
                             "content", Objects.toString(result.getString("post_content"), ""),
+                            "category", result.getString("category"),
                             "createdAt", createdAt.toInstant().toString()));
                 }, ids.toArray());
         BulkRequest.Builder request = new BulkRequest.Builder().index(properties.getIndex());

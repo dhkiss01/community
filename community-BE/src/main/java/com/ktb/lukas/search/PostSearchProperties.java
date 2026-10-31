@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "app.search")
 public class PostSearchProperties {
     private boolean enabled = false;
-    private String index = "community-posts-v1";
+    private String index = "community-posts-v2";
     private int batchSize = 100;
     private boolean reindexOnStartup = false;
 }
