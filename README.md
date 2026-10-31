@@ -8,24 +8,11 @@
 
 [모바일 화면 보기](docs/images/mobile.jpg)
 
-## 바로 실행하기
+## 실행 환경
 
-Docker와 Docker Compose가 설치되어 있다면 저장소 루트에서 실행하세요.
+Java 21, Node.js 24 이상, MySQL 8.4, Elasticsearch 8.18.5와 Nori 플러그인이 필요합니다. 로컬 DB와 검색 엔진을 준비하는 방법은 [개발 환경 설정](docs/local-development.md)에 적었습니다.
 
-```bash
-git clone https://github.com/dhkiss01/community.git
-cd community
-git switch feat/baseball-community
-docker compose up -d --build
-```
-
-첫 실행에는 이미지와 의존성을 받느라 몇 분 걸릴 수 있습니다. 준비되면 **http://localhost:3000** 에서 열립니다. 빈 게시판에 샘플 글을 넣고 싶다면 Node.js 24 이상에서 아래 명령을 한 번 실행하세요.
-
-```bash
-node scripts/seed-demo.mjs
-```
-
-종료는 `docker compose down`입니다. DB와 검색 데이터는 볼륨에 남습니다.
+백엔드와 프런트엔드를 실행한 뒤 **http://localhost:3000** 에서 확인할 수 있습니다.
 
 ## 들어 있는 기능
 
@@ -43,12 +30,9 @@ node scripts/seed-demo.mjs
 
 백엔드는 Java 21 / Spring Boot 3.5.5, 프런트엔드는 HTML, CSS, JavaScript / Express입니다. DB는 MySQL 8.4, 검색 엔진은 Elasticsearch 8.18.5 + Nori를 사용합니다.
 
-전체 앱을 Docker로 빌드하지 않고 실행하려면:
+DB와 검색 엔진을 준비한 뒤 터미널 두 개에서 실행합니다.
 
 ```bash
-# 저장소 루트: DB와 검색 엔진만 실행
-docker compose up -d mysql elasticsearch
-
 # 첫 번째 터미널 (JAVA_HOME은 Java 21)
 cd community-BE
 ./gradlew bootRun --args='--spring.profiles.active=local,search --spring.elasticsearch.uris=http://localhost:19200 --server.port=18080'
@@ -76,6 +60,7 @@ npm test
 # 로컬 백엔드, MySQL, Elasticsearch가 실행 중일 때
 cd ..
 node scripts/integration-test.mjs
+node scripts/auth-test.mjs
 cd community-FE
 npx playwright install chromium
 npm run test:e2e
@@ -87,7 +72,7 @@ npm run test:e2e
 
 검색은 `search` 프로필 또는 `APP_SEARCH_ENABLED=true`로 켭니다. 게시글과 검색 색인은 outbox를 통해 비동기로 동기화되므로 검색 반영까지 잠깐의 지연이 있습니다.
 
-기존 DB에는 outbox 테이블과 게시판 분류 추가, 본문과 댓글의 길이 확장을 먼저 적용하고, 기존 글은 한 번 backfill해야 합니다. 설정, 장애 복구, 재색인 순서는 [검색 운영 문서](docs/search.md)를 확인하세요. 운영 Elasticsearch에는 인증과 TLS를 설정해야 합니다. Compose의 인증 없는 단일 노드는 로컬 개발용입니다.
+기존 DB에는 outbox 테이블과 게시판 분류 추가, 본문과 댓글의 길이 확장을 먼저 적용하고, 기존 글은 한 번 backfill해야 합니다. 설정, 장애 복구, 재색인 순서는 [검색 운영 문서](docs/search.md)를 확인하세요. 운영 Elasticsearch에는 인증과 TLS를 설정해야 합니다. 개발 환경 문서의 인증 없는 단일 노드는 로컬에서만 사용하세요.
 
 ## develop에서 main으로
 
@@ -98,6 +83,6 @@ git push -u origin develop
 gh pr create --base main --head develop --title "야구 커뮤니티 개편 및 Elasticsearch 검색 도입" --body-file docs/pull-request.md
 ```
 
-PR을 병합하면 기존 `main` 배포 워크플로가 실행됩니다. 병합 전에는 운영 DB 마이그레이션과 검색 환경변수, GitHub Actions의 기존 배포 시크릿을 확인하세요.
+`main`에 병합하면 백엔드와 프런트엔드 이미지를 커밋 SHA 태그로 발행합니다. GitOps chart의 `image.tag`를 발행된 SHA로 변경해야 클러스터에 반영됩니다. 런타임 설정은 Kubernetes Secret과 ConfigMap에서 공급하며 이미지에 넣지 않습니다. 병합 전에는 운영 DB 마이그레이션과 검색 환경변수, GitHub Actions의 기존 배포 시크릿을 확인하세요.
 
 화면 구성의 근거와 참고한 자료는 [디자인 메모](docs/design.md)에 모았습니다.

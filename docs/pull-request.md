@@ -16,3 +16,9 @@ Elasticsearch Nori 검색과 구단 약칭 동의어를 추가했습니다. 게�
 ## 병합 전 적용
 
 기존 DB에 community-BE/src/main/resources/db/의 search-outbox.sql, community-upgrade.sql, post-category.sql 적용 → 운영 Elasticsearch/Nori 준비 → search 프로필 및 환경변수 설정 → 초기 backfill 순으로 진행합니다. local 프로필은 운영에 사용하지 않습니다. main 병합 시 기존 배포 워크플로가 실행됩니다.
+
+## 재점검 반영
+
+로컬 실행 파일 삭제에 맞춰 README와 CI를 정리했습니다. 인증 만료시간의 단위와 기간을 통일하고 토큰 회전, 로그아웃 처리를 수정했습니다. GitHub CI에서 발견된 빈 게시판의 중복 작성 버튼도 수정했습니다.
+
+이미지에 시크릿 설정 파일을 복사하던 단계를 제거하고 백엔드와 프런트엔드를 모두 SHA 태그로 발행합니다. 프런트엔드 chart에는 운영 API 주소와 readiness 검사를 반영했습니다. 이미지를 적용할 때 chart의 image.tag를 발행된 SHA로 업데이트해야 합니다.

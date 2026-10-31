@@ -54,3 +54,6 @@ ingress:
   className: nginx
   host: charlie-jjang.xyz
   path: /
+
+api:
+  baseUrl: "https://api.charlie-jjang.xyz"
