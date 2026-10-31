@@ -2,6 +2,17 @@ const API = window.__APP_CONFIG__?.API_BASE_URL || "/api";
 const main = document.querySelector("#main");
 const page = document.body.dataset.page;
 const params = new URLSearchParams(location.search);
+const boards = {
+  FREE: "자유게시판",
+  REVIEW: "직관 이야기",
+  ANALYSIS: "경기 분석",
+};
+const boardUrl = (category) =>
+  "/html/index.html" + (boards[category] ? "?category=" + category : "");
+const selectedBoard = () =>
+  boards[new URLSearchParams(location.search).get("category")]
+    ? new URLSearchParams(location.search).get("category")
+    : "";
 const teams = [
   "LG",
   "한화",
@@ -114,9 +125,16 @@ async function request(
 function renderHeader() {
   document.querySelector("#site-header").className = "site-header";
   document.querySelector("#site-header").innerHTML = `<div class="header-inner">
-        <a class="brand" href="/" aria-label="더그아웃 홈"><img src="/public/dugout.svg" alt=""><div><strong>더그아웃</strong><small>DUGOUT CLUB</small></div></a>
-        <nav class="top-nav" aria-label="주 메뉴"><a href="/html/index.html" class="${page === "home" ? "active" : ""}" ${page === "home" ? 'aria-current="page"' : ""}>커뮤니티</a><a href="/html/index.html?q=${encodeURIComponent("직관")}">직관 이야기</a><a href="/html/index.html?q=${encodeURIComponent("분석")}">경기 분석</a></nav>
-        <div class="account">${user ? `<a href="/html/modifyInfo.html">${avatar(user.nickname)} ${escape(user.nickname)}</a><button id="logout" type="button">로그아웃</button>` : '<a href="/html/login.html">로그인</a><a class="button small" href="/html/signup.html">함께하기</a>'}</div></div>`;
+        <a class="brand" href="/" aria-label="더그아웃 홈"><img src="/public/dugout.svg" alt=""><strong>더그아웃</strong></a>
+        <nav class="top-nav" aria-label="게시판"><a href="/html/index.html" ${page === "home" && !selectedBoard() ? 'class="active" aria-current="page"' : ""}>전체글</a>${Object.entries(
+          boards,
+        )
+          .map(
+            ([value, label]) =>
+              `<a href="${boardUrl(value)}" ${page === "home" && selectedBoard() === value ? 'class="active" aria-current="page"' : ""}>${label}</a>`,
+          )
+          .join("")}</nav>
+        <div class="account">${user ? `<a href="/html/modifyInfo.html">${avatar(user.nickname)} ${escape(user.nickname)}</a><button id="logout" type="button">로그아웃</button>` : '<a class="button small" href="/html/login.html">로그인</a><a class="button small" href="/html/signup.html">회원가입</a>'}</div></div>`;
   document.querySelector("#logout")?.addEventListener("click", () => {
     localStorage.removeItem("accessToken");
     location.assign("/");
@@ -143,13 +161,13 @@ function requireLogin() {
   return false;
 }
 function state(title, description, action = "") {
-  return `<div class="list-state"><div class="state-icon">${icon("ball", 32)}</div><h3>${escape(title)}</h3><p>${escape(description)}</p>${action}</div>`;
+  return `<div class="list-state"><h3>${escape(title)}</h3><p>${escape(description)}</p>${action}</div>`;
 }
-const field = `<svg class="field-art" viewBox="0 0 360 260" fill="none" aria-hidden="true"><path d="M180 229 39 88Q180-43 321 88Z" fill="#d9e1d0"/><path d="m180 229-97-97q97-91 194 0Z" fill="#c8d3bb"/><path d="m180 229-67-67 67-67 67 67Z" fill="#e9e8d7" stroke="#a0b08e"/><path d="m180 229-67-67 67-67 67 67Z" stroke="#faf9f3" stroke-width="2"/><path d="M180 229 35 84M180 229 325 84" stroke="#faf9f3" stroke-width="2"/><path d="M105 189q75-70 150 0" stroke="#a0b08e" stroke-dasharray="3 5"/><circle cx="180" cy="166" r="12" fill="#d7d6c4"/><rect x="109" y="158" width="7" height="7" transform="rotate(45 109 158)" fill="#fff"/><rect x="180" y="91" width="7" height="7" transform="rotate(45 180 91)" fill="#fff"/><rect x="247" y="158" width="7" height="7" transform="rotate(45 247 158)" fill="#fff"/><path d="m175 224 5-3 5 3v5h-10Z" fill="#fff"/><text x="180" y="49" text-anchor="middle" fill="#7d9070" font-size="8" letter-spacing="4">A SEAT FOR EVERY FAN</text></svg>`;
 function postRow(post) {
-  return `<article class="post-row"><div class="post-body"><h3><a href="/html/board.html?id=${post.id}" aria-label="${escape(post.title)}">${escape(post.title)}</a></h3><p class="post-excerpt">${escape(post.content)}</p><div class="post-meta"><span class="post-author">${avatar(post.nickname)}${escape(post.nickname || "야구팬")}</span><time datetime="${escape(post.createdAt)}">${date(post.createdAt)}</time><span>조회 ${count(post.viewCount)}</span><span>공감 ${count(post.likeCount)}</span></div></div><a class="reply-count" href="/html/board.html?id=${post.id}#comments" aria-label="댓글 ${count(post.commentCount)}개">${count(post.commentCount)}<small>댓글</small></a></article>`;
+  return `<article class="post-row"><div class="post-body"><h3><a href="/html/board.html?id=${post.id}" aria-label="${escape(post.title)}">${escape(post.title)}</a></h3><p class="post-excerpt">${escape(post.content)}</p><div class="post-meta"><span class="post-category">${boards[post.category] || boards.FREE}</span><span class="post-author">${avatar(post.nickname)}${escape(post.nickname || "야구팬")}</span><time datetime="${escape(post.createdAt)}">${date(post.createdAt)}</time><span>조회 ${count(post.viewCount)}</span><span>공감 ${count(post.likeCount)}</span></div></div><a class="reply-count" href="/html/board.html?id=${post.id}#comments" aria-label="댓글 ${count(post.commentCount)}개">${count(post.commentCount)}<small>댓글</small></a></article>`;
 }
 async function home() {
+  let category = selectedBoard();
   let keyword = params.get("q") || "";
   let sort = params.get("sort") === "recent" ? "recent" : "relevance";
   let currentPage = 0,
@@ -157,30 +175,23 @@ async function home() {
     controller,
     generation = 0;
   main.className = "page";
-  main.innerHTML = `<section class="hero"><div class="hero-copy"><div class="eyebrow">FOR THE LOVE OF BASEBALL</div><h1>경기는 끝나도,<br>이야기는 계속.</h1><p>오늘의 명장면부터 내일의 선발까지.<br>야구가 좋은 우리, 여기서 만나요.</p></div>${field}</section>
-    <div class="content-grid"><section aria-labelledby="feed-title"><div class="section-title"><div><div class="section-label">THE CLUBHOUSE</div><h2 id="feed-title">우리들의 야구 이야기</h2><p>다른 팀을 응원해도, 야구를 좋아하는 마음은 같으니까.</p></div><a class="button primary" href="/html/board-write.html">${icon("plus", 15)} 글쓰기</a></div>
-    <form id="search-form" role="search" class="search">${icon("search")}<input id="search-input" name="q" type="search" maxlength="100" placeholder="구단, 선수, 궁금한 야구 이야기를 찾아보세요" aria-label="게시글 검색" value="${escape(keyword)}"><button type="submit">검색</button></form>
+  main.innerHTML = `<section class="board-section" aria-labelledby="feed-title"><div class="section-title"><h1 id="feed-title">${boards[category] || "전체글"}</h1><a id="write-link" class="button primary" href="/html/board-write.html${category ? "?category=" + category : ""}">${icon("plus", 15)} 글쓰기</a></div>
+    <form id="search-form" role="search" class="search">${icon("search")}<input id="search-input" name="q" type="search" maxlength="100" placeholder="구단, 선수, 제목, 내용 검색" aria-label="게시글 검색" value="${escape(keyword)}"><button type="submit">검색</button></form>
     <div class="team-row" aria-label="구단 이름으로 검색"><button class="chip" type="button" data-team="" aria-pressed="${!keyword}">전체</button>${teams.map((team) => `<button class="chip" type="button" data-team="${team}" aria-pressed="${keyword === team}">${team}</button>`).join("")}</div>
     <div class="list-toolbar"><div class="result-context"><h3 id="result-title"></h3><button id="clear-search" class="text-button" type="button" hidden>초기화</button></div><label><span class="sr-only">검색 결과 정렬</span><select id="sort" aria-label="검색 결과 정렬"><option value="relevance">관련도순</option><option value="recent">최신순</option></select></label></div>
-    <div id="feed" aria-live="polite" aria-busy="true"></div><button id="more" class="load-more" type="button" hidden>이야기 더 보기 ↓</button><p id="end-note" class="end-note" hidden>여기까지 읽었어요. 나만의 이야기도 들려주세요.</p></section>
-    <aside class="sidebar" aria-label="커뮤니티 안내"><section class="side-card"><span class="side-kicker">WELCOME TO THE CLUB</span><h3>당신의 자리를 비워뒀어요.</h3><p>첫 직관의 설렘, 아쉬웠던 한 타석.<br>혼자 간직하기 아까운 이야기를 나눠요.</p><a class="button primary" href="${user ? "/html/board-write.html" : "/html/signup.html"}">${user ? "첫 이야기 꺼내기" : "더그아웃 함께하기"} ↗</a></section><section class="side-card"><span class="side-kicker">TALK BASEBALL</span><h3>어떤 이야기부터 할까요?</h3>${[
-      ["01", "직관", "직관의 모든 순간"],
-      ["02", "분석", "숫자로 보는 야구"],
-      ["03", "유니폼", "나의 야구 취향"],
-    ]
-      .map(
-        ([n, q, label]) =>
-          `<a class="topic-link" href="?q=${encodeURIComponent(q)}"><span>${n}</span>${label}<b>↗</b></a>`,
-      )
-      .join(
-        "",
-      )}</section><section class="side-card ground-rule"><h3><span class="rule-number">01</span>우리의 그라운드 룰</h3><p>응원은 뜨겁게, 대화는 다정하게.<br>선수와 팬을 향한 비난 대신<br>야구에 대한 이야기를 남겨주세요.</p></section></aside></div>`;
+    <div id="feed" aria-live="polite" aria-busy="true"></div><button id="more" class="load-more" type="button" hidden>게시글 더 보기</button><p id="end-note" class="end-note" hidden>마지막 게시글입니다.</p></section>`;
   const feed = document.querySelector("#feed"),
     more = document.querySelector("#more");
   function context() {
+    document.querySelector("#feed-title").textContent =
+      boards[category] || "전체글";
+    document.querySelector("#write-link").href =
+      "/html/board-write.html" + (category ? "?category=" + category : "");
+    document.title = "더그아웃";
+    renderHeader();
     document.querySelector("#result-title").textContent = keyword
       ? `“${keyword}” 검색 결과`
-      : "전체 이야기";
+      : "최신 게시글";
     document.querySelector("#clear-search").hidden = !keyword;
     document.querySelector("#sort").value = keyword ? sort : "recent";
     document.querySelector("#sort").disabled = !keyword;
@@ -213,6 +224,7 @@ async function home() {
       const query = new URLSearchParams({
         page: currentPage,
         size: 10,
+        ...(category ? { category } : {}),
         ...(keyword ? { keyword, sort } : {}),
       });
       const posts = await request(
@@ -223,11 +235,11 @@ async function home() {
       if (reset) feed.innerHTML = "";
       if (!posts.length && !currentPage)
         feed.innerHTML = state(
-          keyword ? "아직 이 이야기는 없네요." : "첫 이닝을 함께 열어볼까요?",
+          keyword ? "검색 결과가 없습니다." : "등록된 게시글이 없습니다.",
           keyword
-            ? "다른 검색어를 입력하거나 전체 이야기로 돌아가보세요."
-            : "오늘의 야구 이야기를 가장 먼저 남겨주세요.",
-          `<a class="button small" href="${keyword ? "/html/index.html" : "/html/board-write.html"}">${keyword ? "전체 이야기 보기" : "첫 이야기 쓰기"}</a>`,
+            ? "다른 검색어를 입력하거나 검색 조건을 초기화하세요."
+            : "이 게시판에 첫 글을 작성해보세요.",
+          `<a class="button small" href="${keyword ? boardUrl(category) : "/html/board-write.html" + (category ? "?category=" + category : "")}">${keyword ? "검색 초기화" : "글쓰기"}</a>`,
         );
       else feed.insertAdjacentHTML("beforeend", posts.map(postRow).join(""));
       currentPage++;
@@ -240,7 +252,7 @@ async function home() {
       feed.insertAdjacentHTML(
         "beforeend",
         state(
-          "이야기를 불러오지 못했어요.",
+          "게시글을 불러오지 못했습니다.",
           error.message,
           '<button id="retry" class="button small" type="button">다시 시도</button>',
         ),
@@ -259,7 +271,10 @@ async function home() {
   function search(value) {
     keyword = value.trim();
     document.querySelector("#search-input").value = keyword;
-    const query = new URLSearchParams(keyword ? { q: keyword, sort } : {});
+    const query = new URLSearchParams({
+      ...(category ? { category } : {}),
+      ...(keyword ? { q: keyword, sort } : {}),
+    });
     history.pushState(
       null,
       "",
@@ -285,6 +300,7 @@ async function home() {
   });
   window.addEventListener("popstate", () => {
     const query = new URLSearchParams(location.search);
+    category = boards[query.get("category")] ? query.get("category") : "";
     keyword = query.get("q") || "";
     sort = query.get("sort") || "relevance";
     document.querySelector("#search-input").value = keyword;
@@ -309,7 +325,7 @@ async function submitForm(form, action) {
 }
 async function auth(signup = false) {
   main.className = "auth-page";
-  main.innerHTML = `<div class="eyebrow">YOUR NEXT INNING</div><h1>${signup ? "같이 야구 이야기해요." : "다시 만나 반가워요."}</h1><p class="intro">${signup ? "응원하는 팀은 달라도, 야구가 좋은 마음은 같으니까." : "오늘도 당신의 야구 이야기가 궁금해요."}</p><section class="surface"><form id="auth-form" class="form-stack">${signup ? '<label>닉네임<input name="nickname" required maxlength="10" autocomplete="nickname" placeholder="더그아웃에서 부를 이름"><small>공백 없이 10자까지 사용할 수 있어요.</small></label>' : ""}<label>이메일<input name="email" type="email" required maxlength="40" autocomplete="email" placeholder="you@example.com"></label><label>비밀번호<input name="password" aria-label="비밀번호" type="password" required minlength="8" maxlength="20" autocomplete="${signup ? "new-password" : "current-password"}" placeholder="비밀번호를 입력해주세요">${signup ? "<small>8~20자, 영문 대·소문자, 숫자, 특수문자를 포함해주세요.</small>" : ""}</label>${signup ? '<label>비밀번호 확인<input name="confirmation" type="password" required autocomplete="new-password" placeholder="비밀번호를 한 번 더 입력해주세요"></label>' : ""}<p class="form-error" role="alert" tabindex="-1"></p><button class="button primary" type="submit">${signup ? "더그아웃 함께하기" : "로그인"}</button></form></section><p class="auth-switch">${signup ? '이미 함께하고 있나요? <a href="/html/login.html">로그인</a>' : '아직 회원이 아닌가요? <a href="/html/signup.html">회원가입</a>'}</p>`;
+  main.innerHTML = `<h1>${signup ? "회원가입" : "로그인"}</h1><section class="surface"><form id="auth-form" class="form-stack">${signup ? '<label>닉네임<input name="nickname" required maxlength="10" autocomplete="nickname" placeholder="닉네임을 입력해주세요"><small>공백 없이 10자까지 사용할 수 있어요.</small></label>' : ""}<label>이메일<input name="email" type="email" required maxlength="40" autocomplete="email" placeholder="you@example.com"></label><label>비밀번호<input name="password" aria-label="비밀번호" type="password" required minlength="8" maxlength="20" autocomplete="${signup ? "new-password" : "current-password"}" placeholder="비밀번호를 입력해주세요">${signup ? "<small>8~20자, 영문 대, 소문자, 숫자, 특수문자를 포함해주세요.</small>" : ""}</label>${signup ? '<label>비밀번호 확인<input name="confirmation" type="password" required autocomplete="new-password" placeholder="비밀번호를 한 번 더 입력해주세요"></label>' : ""}<p class="form-error" role="alert" tabindex="-1"></p><button class="button primary" type="submit">${signup ? "회원가입" : "로그인"}</button></form></section><p class="auth-switch">${signup ? '이미 계정이 있나요? <a href="/html/login.html">로그인</a>' : '아직 회원이 아닌가요? <a href="/html/signup.html">회원가입</a>'}</p>`;
   document.querySelector("#auth-form").addEventListener("submit", (event) => {
     event.preventDefault();
     submitForm(event.currentTarget, async (data) => {
@@ -353,8 +369,8 @@ async function post() {
   main.innerHTML = '<div class="skeleton"></div>';
   try {
     const data = await request(`/posts/${id}`);
-    document.title = `${data.title} · 더그아웃`;
-    main.innerHTML = `<a class="back-link" href="/html/index.html">${icon("arrow", 14)} 전체 이야기</a><article class="surface"><h1 class="post-heading">${escape(data.title)}</h1><div class="post-meta"><span class="post-author">${avatar(data.nickname)}${escape(data.nickname)}</span><time datetime="${escape(data.createdAt)}">${date(data.createdAt)}</time><span>조회 ${count(data.viewCount)}</span></div><div class="article-content">${escape(data.content)}</div>${safeImage(data.image) ? `<img class="article-image" src="${safeImage(data.image)}" alt="게시글 첨부 이미지" loading="lazy">` : ""}<div class="post-actions"><button class="button" id="like" type="button">공감 <span>${count(data.likeCount)}</span></button>${user?.id === data.userId ? `<div><a class="button small" href="/html/board-modify.html?id=${id}">수정</a><button class="button small danger" id="delete-post" type="button">삭제</button></div>` : '<a class="text-button" href="/html/index.html">목록으로</a>'}</div><section id="comments" class="comments"><h2>함께 나누는 이야기 <span id="comment-total"></span></h2><div id="comment-list" aria-live="polite"></div>${user ? '<form id="comment-form" class="comment-form"><label for="comment-input" class="sr-only">댓글 내용</label><textarea id="comment-input" name="comment" required maxlength="1000" placeholder="서로의 응원을 존중하는 한마디를 남겨주세요."></textarea><p class="form-error" role="alert" tabindex="-1"></p><div class="form-footer"><small>야구 이야기는 환영, 비난은 삼가주세요.</small><button class="button primary small" type="submit">댓글 남기기</button></div></form>' : `<div class="list-state"><p>로그인하고 함께 이야기해요.</p><a class="button small" href="${loginUrl()}">로그인</a></div>`}</section></article>`;
+    document.title = "더그아웃";
+    main.innerHTML = `<a class="back-link" href="/html/index.html">${icon("arrow", 14)} 전체글</a><article class="surface"><h1 class="post-heading">${escape(data.title)}</h1><div class="post-meta"><span class="post-author">${avatar(data.nickname)}${escape(data.nickname)}</span><time datetime="${escape(data.createdAt)}">${date(data.createdAt)}</time><span>조회 ${count(data.viewCount)}</span></div><div class="article-content">${escape(data.content)}</div>${safeImage(data.image) ? `<img class="article-image" src="${safeImage(data.image)}" alt="게시글 첨부 이미지" loading="lazy">` : ""}<div class="post-actions"><button class="button" id="like" type="button">공감 <span>${count(data.likeCount)}</span></button>${user?.id === data.userId ? `<div><a class="button small" href="/html/board-modify.html?id=${id}">수정</a><button class="button small danger" id="delete-post" type="button">삭제</button></div>` : '<a class="text-button" href="/html/index.html">목록으로</a>'}</div><section id="comments" class="comments"><h2>댓글 <span id="comment-total"></span></h2><div id="comment-list" aria-live="polite"></div>${user ? '<form id="comment-form" class="comment-form"><label for="comment-input" class="sr-only">댓글 내용</label><textarea id="comment-input" name="comment" required maxlength="1000" placeholder="댓글을 입력해주세요."></textarea><p class="form-error" role="alert" tabindex="-1"></p><div class="form-footer"><small>댓글은 최대 1,000자까지 작성할 수 있습니다.</small><button class="button primary small" type="submit">댓글 등록</button></div></form>' : `<div class="list-state"><p>댓글을 작성하려면 로그인해주세요.</p><a class="button small" href="${loginUrl()}">로그인</a></div>`}</section></article>`;
     async function comments() {
       const items = await request(`/posts/${id}/comments`);
       document.querySelector("#comment-total").textContent = items.length;
@@ -365,7 +381,7 @@ async function post() {
                 `<article class="comment"><header>${avatar(c.nickname)}<strong>${escape(c.nickname)}</strong><time>${date(c.createdAt)}</time>${user?.id === c.userId ? `<div class="comment-actions"><button class="text-button" data-edit-comment="${c.id}" type="button">수정</button><button class="text-button" data-delete-comment="${c.id}" type="button">삭제</button></div>` : ""}</header><p>${escape(c.comment)}</p></article>`,
             )
             .join("")
-        : '<p class="end-note">첫 댓글로 이야기를 이어주세요.</p>';
+        : '<p class="end-note">등록된 댓글이 없습니다.</p>';
       document.querySelectorAll("[data-delete-comment]").forEach((button) =>
         button.addEventListener("click", async () => {
           if (!confirm("이 댓글을 삭제할까요?")) return;
@@ -444,7 +460,7 @@ async function post() {
       .querySelector("#delete-post")
       ?.addEventListener("click", async () => {
         if (
-          !confirm("이야기와 댓글을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.")
+          !confirm("게시글과 댓글을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.")
         )
           return;
         try {
@@ -458,9 +474,9 @@ async function post() {
       document.querySelector("#comments").scrollIntoView();
   } catch (e) {
     main.innerHTML = state(
-      "이야기를 열지 못했어요.",
+      "게시글을 열지 못했습니다.",
       e.message,
-      '<a class="button small" href="/">전체 이야기로</a>',
+      '<a class="button small" href="/">전체글로</a>',
     );
   }
 }
@@ -479,7 +495,16 @@ async function editor(edit = false) {
   }
   const values = edit ? existing : draft;
   main.className = "page narrow";
-  main.innerHTML = `<a class="back-link" href="/html/index.html">${icon("arrow", 14)} 전체 이야기</a><section class="surface editor"><div class="section-label">FROM YOUR DUGOUT</div><h1>${edit ? "이야기 다듬기" : "오늘, 어떤 야구를 봤나요?"}</h1><p class="intro">경기 감상도, 소소한 질문도 좋아요. 당신의 이야기를 들려주세요.</p><form id="editor" class="form-stack"><label>제목<input name="title" required maxlength="26" value="${escape(values.title)}" placeholder="이야기의 제목을 적어주세요"><small>최대 26자</small></label><label>내용<textarea name="content" required maxlength="20000" placeholder="기억에 남는 한 장면부터 시작해보세요.">${escape(values.content)}</textarea></label><label>사진 주소 <small>선택 사항 · 공개된 http 또는 https 이미지 주소를 사용할 수 있어요.</small><input name="image" type="url" maxlength="200" value="${escape(values.image)}" placeholder="https://..."></label><p class="form-error" role="alert" tabindex="-1"></p><div class="form-footer"><small id="draft-status">${edit ? "변경 사항을 확인한 후 저장해주세요." : "작성 중인 내용은 이 탭에 임시 보관돼요."}</small><div><a class="button quiet" href="${edit ? "/html/board.html?id=" + id : "/"}">취소</a> <button class="button primary" type="submit">${edit ? "수정 완료" : "이야기 올리기"}</button></div></div></form></section>`;
+  main.innerHTML = `<a class="back-link" href="/html/index.html">${icon("arrow", 14)} 전체글</a><section class="surface editor"><h1>${edit ? "게시글 수정" : "글쓰기"}</h1><form id="editor" class="form-stack"><label>게시판<select name="category" aria-label="게시판" required>${Object.entries(
+    boards,
+  )
+    .map(
+      ([value, label]) =>
+        `<option value="${value}" ${value === (values.category || selectedBoard() || "FREE") ? "selected" : ""}>${label}</option>`,
+    )
+    .join(
+      "",
+    )}</select></label><label>제목<input name="title" required maxlength="26" value="${escape(values.title)}" placeholder="제목을 입력해주세요"><small>최대 26자</small></label><label>내용<textarea name="content" required maxlength="20000" placeholder="내용을 입력해주세요.">${escape(values.content)}</textarea></label><label>사진 주소 <small>선택 사항 ,  공개된 http 또는 https 이미지 주소를 사용할 수 있어요.</small><input name="image" type="url" maxlength="200" value="${escape(values.image)}" placeholder="https://..."></label><p class="form-error" role="alert" tabindex="-1"></p><div class="form-footer"><small id="draft-status">${edit ? "변경 사항을 확인한 후 저장해주세요." : "작성 중인 내용은 이 탭에 임시 보관돼요."}</small><div><a class="button quiet" href="${edit ? "/html/board.html?id=" + id : "/"}">취소</a> <button class="button primary" type="submit">${edit ? "수정 완료" : "글 등록"}</button></div></div></form></section>`;
   let dirty = false;
   const form = document.querySelector("#editor");
   form.addEventListener("input", () => {
@@ -519,7 +544,7 @@ async function editor(edit = false) {
 async function profile() {
   if (!requireLogin()) return;
   main.className = "auth-page";
-  main.innerHTML = `<h1>나의 더그아웃</h1><p class="intro">이야기 속에서 나를 소개하는 이름이에요.</p><section class="surface"><form id="profile-form" class="form-stack"><label>이메일<input class="readonly" value="${escape(user.email)}" readonly></label><label>닉네임<input name="nickname" required maxlength="10" value="${escape(user.nickname)}"></label><label>프로필 사진 주소<input name="image" type="url" maxlength="200" value="${escape(user.image)}" placeholder="https://..."></label><p class="form-error" role="alert" tabindex="-1"></p><button class="button primary" type="submit">변경 사항 저장</button></form></section>`;
+  main.innerHTML = `<h1>내 정보</h1><p class="intro">닉네임과 프로필 사진을 변경할 수 있습니다.</p><section class="surface"><form id="profile-form" class="form-stack"><label>이메일<input class="readonly" value="${escape(user.email)}" readonly></label><label>닉네임<input name="nickname" required maxlength="10" value="${escape(user.nickname)}"></label><label>프로필 사진 주소<input name="image" type="url" maxlength="200" value="${escape(user.image)}" placeholder="https://..."></label><p class="form-error" role="alert" tabindex="-1"></p><button class="button primary" type="submit">변경 사항 저장</button></form></section>`;
   document
     .querySelector("#profile-form")
     .addEventListener("submit", (event) => {

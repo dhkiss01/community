@@ -1,14 +1,13 @@
-# 더그아웃 화면 메모
+# 화면 구성
 
-야구 커뮤니티에서 가장 자주 할 일은 글을 읽고, 관심 있는 팀 이야기를 찾고, 내 의견을 남기는 일이라고 보고 화면을 구성했습니다. 실시간 데이터가 없는 경기 점수판이나 순위표를 장식으로 넣지는 않았습니다.
+상단에는 전체글, 자유게시판, 직관 이야기, 경기 분석을 둡니다. 각 게시판은 게시글에 저장한 분류로 조회하며, 검색도 해당 분류 안에서 수행합니다. 검색 초기화 후에도 선택한 게시판을 유지합니다.
 
-화면은 따뜻한 흰색, 짙은 초록, 회색을 중심으로 구성했습니다. 팀마다 다른 색을 쓰는 대신 구단 이름을 같은 형태의 버튼으로 보여줍니다. 넓은 화면에서는 안내를 오른쪽에 두고, 모바일에서는 글 목록에 집중하도록 안내 영역을 접습니다.
+배너, 영문 장식 문구, 가입 권유 카드 없이 게시글과 검색을 바로 보여줍니다. 로그인과 회원가입은 같은 테두리 버튼 스타일을 사용합니다. 남색 헤더와 파란색 강조색을 사용하고, 본문은 흰색 목록으로 구분합니다. 글 작성 화면에서 게시판을 선택할 수 있습니다.
 
-- 검색창과 구단 검색 버튼을 바로 보이게 두었습니다. 사용자가 검색 방법을 기억할 필요를 줄이려는 선택입니다. [NN/g: Recognition Rather Than Recall](https://www.nngroup.com/articles/recognition-and-recall/)
-- 로딩, 결과 없음, 서버 오류를 구분하고 다음 행동을 안내합니다. [NN/g: Visibility of System Status](https://www.nngroup.com/articles/visibility-system-status/), [Stack Overflow: Empty states](https://stackoverflow.design/system/components/empty-states/)
-- 자동 무한 스크롤 대신 더 보기 버튼을 사용하고, 검색 조건은 URL에 남깁니다. 뒤로 가기와 링크 공유로 탐색을 이어갈 수 있도록 했습니다. 이 부분은 위 원칙을 프로젝트에 적용한 설계 판단입니다.
-- 입력에는 레이블, 키보드 포커스 표시, 본문 바로가기, 상태 안내를 넣었습니다. 작성 중인 글은 탭의 sessionStorage에 임시 보관합니다. 실제 사용자 인터뷰나 사용성 실험을 수행한 결과는 아닙니다.
+검색 조건을 주소에 남기고 로딩, 빈 결과, 오류를 구분합니다. 키보드 포커스 표시와 본문 바로가기를 제공하며, 글쓰기 초안은 탭에 임시 보관합니다.
 
-README는 [Discourse](https://github.com/discourse/discourse/blob/main/README.md)의 소개 → 실행/개발 안내 흐름과 [Roblox Foreman](https://github.com/Roblox/foreman/blob/main/README.md)의 짧은 실행 예시 구성을 참고했습니다. 본문은 이 저장소의 실제 명령과 제약에 맞춰 작성했습니다.
+참고 자료: [NN/g 상태 표시](https://www.nngroup.com/articles/visibility-system-status/), [Stack Overflow 빈 결과 안내](https://stackoverflow.design/system/components/empty-states/).
 
-검색 구현은 [Elastic Nori 문서](https://www.elastic.co/docs/reference/elasticsearch/plugins/analysis-nori)를 참고했습니다.
+README 구성은 [Discourse](https://github.com/discourse/discourse/blob/main/README.md)와 [Roblox Foreman](https://github.com/Roblox/foreman/blob/main/README.md)의 개발, 실행 안내 구성을 참고했습니다.
+
+배색과 메뉴 구분은 [MLB 공식 사이트](https://www.mlb.com/)의 남색 내비게이션을, 게시글 탐색 방식은 [MLBPARK](https://mlbpark.donga.com/)의 분류별 목록과 파란색 강조색을 실제 브라우저로 확인해 참고했습니다. 더그아웃에 필요한 게시판, 검색, 작성 기능에 맞춰 적용했습니다.
