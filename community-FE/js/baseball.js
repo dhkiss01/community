@@ -132,10 +132,20 @@ function renderHeader() {
     <a class="brand" href="/" aria-label="더그아웃 홈"><img class="brand-wordmark" src="/public/dugout-wordmark.svg?v=20261031-4" alt="더그아웃" width="148" height="35"></a>
     <div class="account">${user ? `<a href="/html/modifyInfo.html">${escape(user.nickname)}</a><button id="logout" type="button">로그아웃</button>` : '<a href="/html/login.html">로그인</a><a href="/html/signup.html">회원가입</a>'}</div>
     </div><div class="nav-band"><nav class="top-nav" aria-label="게시판">${links.map(([value, label]) => `<a href="${boardUrl(value)}" ${page === "home" && selectedBoard() === value ? 'class="active" aria-current="page"' : ""}>${label}</a>`).join("")}</nav></div>`;
-  document.querySelector("#logout")?.addEventListener("click", () => {
-    localStorage.removeItem("accessToken");
-    location.assign("/");
-  });
+  document
+    .querySelector("#logout")
+    ?.addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      try {
+        await request("/auth", { method: "DELETE" });
+        localStorage.removeItem("accessToken");
+        location.assign("/");
+      } catch (error) {
+        toast(error.message);
+        button.disabled = false;
+      }
+    });
 }
 async function loadUser() {
   if (!localStorage.getItem("accessToken")) return;
@@ -250,7 +260,7 @@ async function home() {
           keyword
             ? "다른 검색어를 입력하거나 검색 조건을 초기화하세요."
             : "이 게시판에 첫 글을 작성해보세요.",
-          `<a class="button small" href="${keyword ? boardUrl(category) : "/html/board-write.html" + (category ? "?category=" + category : "")}">${keyword ? "검색 초기화" : "글쓰기"}</a>`,
+          `<a class="button small" href="${keyword ? boardUrl(category) : "/html/board-write.html" + (category ? "?category=" + category : "")}">${keyword ? "검색 초기화" : "게시글 작성"}</a>`,
         );
       else feed.insertAdjacentHTML("beforeend", posts.map(postRow).join(""));
       currentPage++;
@@ -335,8 +345,11 @@ async function submitForm(form, action) {
   }
 }
 async function auth(signup = false) {
+  const nextParam = params.get("next")
+    ? "?next=" + encodeURIComponent(params.get("next"))
+    : "";
   main.className = "auth-page";
-  main.innerHTML = `<h1>${signup ? "회원가입" : "로그인"}</h1><section class="surface"><form id="auth-form" class="form-stack">${signup ? '<label>닉네임<input name="nickname" required maxlength="10" autocomplete="nickname" placeholder="닉네임을 입력해주세요"><small>공백 없이 10자까지 사용할 수 있어요.</small></label>' : ""}<label>이메일<input name="email" type="email" required maxlength="40" autocomplete="email" placeholder="you@example.com"></label><label>비밀번호<input name="password" aria-label="비밀번호" type="password" required minlength="8" maxlength="20" autocomplete="${signup ? "new-password" : "current-password"}" placeholder="비밀번호를 입력해주세요">${signup ? "<small>8~20자, 영문 대, 소문자, 숫자, 특수문자를 포함해주세요.</small>" : ""}</label>${signup ? '<label>비밀번호 확인<input name="confirmation" type="password" required autocomplete="new-password" placeholder="비밀번호를 한 번 더 입력해주세요"></label>' : ""}<p class="form-error" role="alert" tabindex="-1"></p><button class="button primary" type="submit">${signup ? "회원가입" : "로그인"}</button></form></section><p class="auth-switch">${signup ? '이미 계정이 있나요? <a href="/html/login.html">로그인</a>' : '아직 회원이 아닌가요? <a href="/html/signup.html">회원가입</a>'}</p>`;
+  main.innerHTML = `<h1>${signup ? "회원가입" : "로그인"}</h1><section class="surface"><form id="auth-form" class="form-stack">${signup ? '<label>닉네임<input name="nickname" required maxlength="10" autocomplete="nickname" placeholder="닉네임을 입력해주세요"><small>공백 없이 10자까지 사용할 수 있어요.</small></label>' : ""}<label>이메일<input name="email" type="email" required maxlength="40" autocomplete="email" placeholder="you@example.com"></label><label>비밀번호<input name="password" aria-label="비밀번호" type="password" required minlength="8" maxlength="20" autocomplete="${signup ? "new-password" : "current-password"}" placeholder="비밀번호를 입력해주세요">${signup ? "<small>8~20자, 영문 대, 소문자, 숫자, 특수문자를 포함해주세요.</small>" : ""}</label>${signup ? '<label>비밀번호 확인<input name="confirmation" type="password" required autocomplete="new-password" placeholder="비밀번호를 한 번 더 입력해주세요"></label>' : ""}<p class="form-error" role="alert" tabindex="-1"></p><button class="button primary" type="submit">${signup ? "회원가입" : "로그인"}</button></form></section><p class="auth-switch">${signup ? `이미 계정이 있나요? <a href="/html/login.html${nextParam}">로그인</a>` : `아직 회원이 아닌가요? <a href="/html/signup.html${nextParam}">회원가입</a>`}</p>`;
   document.querySelector("#auth-form").addEventListener("submit", (event) => {
     event.preventDefault();
     submitForm(event.currentTarget, async (data) => {

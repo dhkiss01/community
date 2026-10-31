@@ -32,8 +32,7 @@ test("a fan can sign up, write, search, comment, edit and delete on desktop and 
   await page.getByLabel("비밀번호", { exact: true }).fill("Baseball1!");
   await page.getByLabel("비밀번호 확인", { exact: true }).fill("Baseball1!");
   await page.getByRole("button", { name: "회원가입" }).click();
-  await expect(page).toHaveURL(/index/);
-  await page.getByRole("link", { name: "글쓰기", exact: true }).click();
+  await expect(page).toHaveURL(/board-write/);
   await page.getByLabel("제목", { exact: false }).fill("한화 직관 " + key);
   await page
     .getByLabel("내용", { exact: true })
@@ -43,7 +42,9 @@ test("a fan can sign up, write, search, comment, edit and delete on desktop and 
     page.getByRole("heading", { name: "한화 직관 " + key }),
   ).toBeVisible();
   await expect(page).toHaveTitle("더그아웃");
-  expect(await page.locator("body").innerText()).not.toMatch(/[\u00b7\u318d\u2022]/);
+  expect(await page.locator("body").innerText()).not.toMatch(
+    /[\u00b7\u318d\u2022]/,
+  );
   const postUrl = page.url();
   await page.getByRole("button", { name: /공감/ }).click();
   await expect(page.getByRole("button", { name: /공감/ })).toHaveText("공감 1");
@@ -67,6 +68,17 @@ test("a fan can sign up, write, search, comment, edit and delete on desktop and 
   page.on("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "삭제", exact: true }).first().click();
   await expect(page).toHaveURL(/index/);
+  await page.getByRole("button", { name: "로그아웃", exact: true }).click();
+  await expect(
+    page
+      .locator("#site-header")
+      .getByRole("link", { name: "로그인", exact: true }),
+  ).toBeVisible();
+  expect(
+    (await page.context().cookies()).filter(
+      (cookie) => cookie.name === "refreshToken",
+    ),
+  ).toHaveLength(0);
   expect(errors).toEqual([]);
 });
 
@@ -180,4 +192,24 @@ test("board tabs filter saved categories without turning them into search terms"
   } finally {
     for (const id of ids) await request.delete(`/api/posts/${id}`, { headers });
   }
+});
+
+test("an empty board has an unambiguous compose action", async ({ page }) => {
+  await page.route("**/api/posts?*", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ data: [] }),
+    }),
+  );
+  await page.goto("/html/index.html");
+  await expect(page.getByText("등록된 게시글이 없습니다.")).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "글쓰기", exact: true }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole("link", { name: "게시글 작성", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "글쓰기", exact: true }).click();
+  await expect(page).toHaveURL(/login/);
 });

@@ -1,5 +1,6 @@
 package com.ktb.lukas.service;
 
+import com.ktb.lukas.auth.JwtProperties;
 import com.ktb.lukas.auth.JwtProvider;
 import com.ktb.lukas.dto.*;
 import com.ktb.lukas.entity.RefreshToken;
@@ -22,77 +23,44 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
+    private final JwtProperties jwtProperties;
     private final PasswordEncoder passwordEncoder;
 
-
-
-    public LoginResult login(LoginRequest loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail())
+    public LoginResult login(LoginRequest request) {
+        User user = userRepository.findLockedByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS));
-
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
         }
-
-
-        String accessToken = jwtProvider.createAccessToken(
-                user.getId(),
-                user.getEmail(),
-                user.getNickname()
-        );
-
+        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getEmail(), user.getNickname());
         String refreshToken = jwtProvider.createRefreshToken(user.getId());
-
         refreshTokenRepository.deleteByUserId(user.getId());
-        refreshTokenRepository.save(
-                new RefreshToken(
-                        refreshToken,
-                        user.getId(),
-                        LocalDateTime.now().plusDays(14)
-                )
-        );
-
-        return new LoginResult(
-                LoginResponse.of(user, accessToken, jwtProvider.getAccessTokenValidityInMilliseconds()),
-                refreshToken
-        );
+        refreshTokenRepository.flush();
+        saveRefreshToken(refreshToken, user.getId());
+        return new LoginResult(LoginResponse.of(user, accessToken, jwtProperties.getAccessTokenExpSeconds()), refreshToken);
     }
 
-    // 액세스 토큰 재발급
-    public TokenResult refreshAccessToken(String refreshToken) {
-
-        RefreshToken saved = refreshTokenRepository.findByToken(refreshToken)
+    public TokenResult refreshAccessToken(String token) {
+        if (token == null || token.isBlank()) throw new CustomException(ErrorCode.INVALID_TOKEN);
+        RefreshToken saved = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_TOKEN));
-
-        if (saved.isExpired()) {
-            refreshTokenRepository.delete(saved);
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
-
+        if (saved.isExpired()) throw new CustomException(ErrorCode.INVALID_TOKEN);
         User user = userRepository.findById(saved.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_TOKEN));
-
-        String newAccessToken = jwtProvider.createAccessToken(
-                user.getId(),
-                user.getEmail(),
-                user.getNickname()
-        );
-
-        // Refresh Token 회전 (Rotation)
-        String newRefreshToken = jwtProvider.createRefreshToken(user.getId());
+        String access = jwtProvider.createAccessToken(user.getId(), user.getEmail(), user.getNickname());
+        String refresh = jwtProvider.createRefreshToken(user.getId());
         refreshTokenRepository.delete(saved);
-        refreshTokenRepository.save(
-                new RefreshToken(
-                        newRefreshToken,
-                        user.getId(),
-                        LocalDateTime.now().plusDays(14)
-                )
-        );
-
-        return new TokenResult(
-                new TokenInfo(newAccessToken, 3600),
-                newRefreshToken
-        );
+        refreshTokenRepository.flush();
+        saveRefreshToken(refresh, user.getId());
+        return new TokenResult(new TokenInfo(access, jwtProperties.getAccessTokenExpSeconds()), refresh);
     }
 
+    public void logout(String token) {
+        if (token != null && !token.isBlank()) refreshTokenRepository.deleteByToken(token);
+    }
+
+    private void saveRefreshToken(String token, Long userId) {
+        refreshTokenRepository.save(new RefreshToken(token, userId,
+                LocalDateTime.now().plusSeconds(jwtProperties.getRefreshTokenExpSeconds())));
+    }
 }

@@ -4,7 +4,7 @@ MySQL이 원본 데이터입니다. Elasticsearch에는 게시글 ID, 제목, �
 
 ## 준비 순서
 
-1. `community-BE/src/main/resources/db/search-outbox.sql`과 `community-BE/src/main/resources/db/community-upgrade.sql`을 기존 DB에 적용합니다. 두 번째 파일은 본문과 댓글 저장 길이를 확장합니다. `post-category.sql`도 적용해 게시판 분류 컬럼을 추가합니다. 기존 게시글은 자유게시판(FREE)에 속합니다. 새 로컬 Compose DB에는 자동 적용됩니다. 이미 만들어진 볼륨에는 init SQL이 다시 실행되지 않습니다.
+1. `community-BE/src/main/resources/db/search-outbox.sql`과 `community-BE/src/main/resources/db/community-upgrade.sql`을 기존 DB에 적용합니다. 두 번째 파일은 본문과 댓글 저장 길이를 확장합니다. `post-category.sql`도 적용해 게시판 분류 컬럼을 추가합니다. 기존 게시글은 자유게시판(FREE)에 속합니다. 새 DB에도 outbox SQL을 직접 적용해야 합니다. 새 로컬 DB의 게시글 테이블은 local 프로필로 생성되며, 기존 운영 DB에만 나머지 ALTER SQL을 한 번 적용합니다.
 2. Nori 플러그인을 설치한 Elasticsearch 8.18.5를 준비합니다. 버전은 Spring Boot 3.5.5가 관리하는 Java 클라이언트에 맞췄습니다.
 3. `search` 프로필을 활성화하고 다음 값을 설정합니다.
 

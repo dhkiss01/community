@@ -35,6 +35,8 @@ class LukasApplicationTests {
         String token = call(post("/auth").contentType("application/json").content(body(Map.of("email", "fan@example.com", "password", "Baseball1!"))), 200).at("/data/token/accessToken").asText();
         String otherToken = call(post("/auth").contentType("application/json").content(body(Map.of("email", "other@example.com", "password", "Baseball1!"))), 200).at("/data/token/accessToken").asText();
         String auth = "Bearer " + token;
+        call(get("/missing-endpoint").header("Authorization", auth), 404);
+        call(put("/posts/1").header("Authorization", auth), 405);
         String otherAuth = "Bearer " + otherToken;
         mvc.perform(get("/posts").header("Origin", "http://127.0.0.1:3000")).andExpect(status().isOk()).andExpect(header().string("Access-Control-Allow-Origin", "http://127.0.0.1:3000"));
         call(post("/posts").contentType("application/json").content(body(Map.of("title", "한화 직관", "content", "즐거운 야구"))), 401);

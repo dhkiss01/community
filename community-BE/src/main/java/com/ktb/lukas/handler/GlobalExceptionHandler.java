@@ -24,6 +24,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(new ApiResponse<>("INVALID_REQUEST", "입력 내용을 확인해주세요.", null));
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(Exception e) {
+        return ResponseEntity.status(404).body(new ApiResponse<>("NOT_FOUND", "요청한 경로를 찾을 수 없습니다.", null));
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(Exception e) {
+        return ResponseEntity.status(405).body(new ApiResponse<>("METHOD_NOT_ALLOWED", "지원하지 않는 요청 방식입니다.", null));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception e) {
         e.printStackTrace();
