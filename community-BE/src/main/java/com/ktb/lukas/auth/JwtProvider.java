@@ -49,6 +49,7 @@ public class JwtProvider {
         // Header는 토큰의 타입 -> Payroad는 토큰에 담을 정보들이 있는 곳, 입력하면 안될 것은 입력하지 말아야함 예: 주민번호
         // Signature 이 토큰이 위조되었는지 검증하는 영역
         return Jwts.builder()
+                .id(java.util.UUID.randomUUID().toString())
                 .subject(String.valueOf(userId))                    //userId를 스트링 객체로 형변환 하여 가져옴
                 .claim("typ", type)                           // role 파악을 위해 문자열을 넣어둡니다 "typ"
                 .claims(claims)                                     // 권한을 파악하기 위한 선언

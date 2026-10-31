@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         // 로그인(POST /auth) 허용 -> 단, GET /auth는 인증 필요하므로 메서드 명시
                         .requestMatchers(HttpMethod.POST, "/auth").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/auth").permitAll()
                         // 토큰 재발급 허용
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         // 그 외 모든 요청(GET /auth 포함)은 인증 필요
