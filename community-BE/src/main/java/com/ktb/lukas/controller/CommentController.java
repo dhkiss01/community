@@ -47,11 +47,12 @@ public class CommentController {
     @PatchMapping("/{postId}/comments/{commentId}")
     public  ApiResponse<CommentResponse> updateComment(
             @AuthenticationPrincipal Long userId,
+            @PathVariable Long postId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentRequest request
     ) {
 
-        CommentResponse result = commentservice.updateComment(userId, commentId, request);
+        CommentResponse result = commentservice.updateComment(userId, postId, commentId, request);
         return ApiResponse.success(
                 "댓글 업데이트 성공",
                 result

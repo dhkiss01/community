@@ -11,6 +11,7 @@ public class UserRequestDto {
 
     @Email                              // 이메일 형식 검증 어노테이션
     @NotBlank                           // 공백 여부 어노테이션
+    @Size(max = 40)
     private String email;
 
     @NotBlank

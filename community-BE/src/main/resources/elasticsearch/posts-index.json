@@ -1,0 +1,129 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "tokenizer": {
+        "nori_tokenizer_mixed": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed",
+          "user_dictionary_rules": [
+            "엘지",
+            "케이티",
+            "엔씨",
+            "쓱",
+            "기아",
+            "한화",
+            "삼성",
+            "롯데",
+            "두산",
+            "키움",
+            "트윈스",
+            "라이온즈",
+            "이글스",
+            "타이거즈",
+            "랜더스",
+            "위즈",
+            "다이노스",
+            "자이언츠",
+            "베어스",
+            "히어로즈",
+            "불펜",
+            "타선",
+            "득점권",
+            "로테이션",
+            "연장전",
+            "경기력"
+          ]
+        }
+      },
+      "filter": {
+        "baseball_pos": {
+          "type": "nori_part_of_speech",
+          "stoptags": [
+            "E",
+            "J",
+            "IC",
+            "MAG",
+            "MAJ",
+            "MM",
+            "SP",
+            "SSC",
+            "SSO",
+            "SC",
+            "SE",
+            "SF",
+            "SY",
+            "UNA",
+            "NA",
+            "VSV",
+            "VV",
+            "VA",
+            "VX",
+            "VCP",
+            "VCN",
+            "XPN",
+            "XSA",
+            "XSN",
+            "XSV"
+          ]
+        },
+        "team_aliases": {
+          "type": "synonym_graph",
+          "synonyms": [
+            "lg, 엘지, 트윈스",
+            "kt, 케이티, 위즈",
+            "nc, 엔씨, 다이노스",
+            "ssg, 쓱, 랜더스",
+            "kia, 기아, 타이거즈",
+            "한화, 이글스",
+            "삼성, 라이온즈",
+            "롯데, 자이언츠",
+            "두산, 베어스",
+            "키움, 히어로즈"
+          ]
+        }
+      },
+      "analyzer": {
+        "search_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer_mixed",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "baseball_search": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer_mixed",
+          "filter": [
+            "lowercase",
+            "baseball_pos",
+            "nori_readingform",
+            "team_aliases"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "search_analyzer",
+        "search_analyzer": "baseball_search"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "search_analyzer",
+        "search_analyzer": "baseball_search"
+      },
+      "createdAt": {
+        "type": "date"
+      }
+    }
+  }
+}

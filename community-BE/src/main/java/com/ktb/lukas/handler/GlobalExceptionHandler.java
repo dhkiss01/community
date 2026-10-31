@@ -16,6 +16,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatus()) .body(ApiResponse.error(errorCode));
     }
 
+    @ExceptionHandler({org.springframework.web.bind.MethodArgumentNotValidException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class,
+            org.springframework.http.converter.HttpMessageNotReadableException.class})
+    public ResponseEntity<ApiResponse<Void>> handleBadRequest(Exception e) {
+        return ResponseEntity.badRequest().body(new ApiResponse<>("INVALID_REQUEST", "입력 내용을 확인해주세요.", null));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleUnexpected(Exception e) {
         e.printStackTrace();

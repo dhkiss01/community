@@ -31,6 +31,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:3000,http://127.0.0.1:3000,http://charlie-jjang.xyz,https://charlie-jjang.xyz}")
+    private List<String> allowedOrigins;
+
     private final ObjectMapper objectMapper;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -47,7 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users", "/posts", "/posts/**").permitAll()
                         // 회원가입(POST /users) 허용
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         // 로그인(POST /auth) 허용 -> 단, GET /auth는 인증 필요하므로 메서드 명시
@@ -97,10 +100,7 @@ public class SecurityConfig {
 
         configuration.setAllowCredentials(true);
 
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://charlie-jjang.xyz",
-                "https://charlie-jjang.xyz"));
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
 

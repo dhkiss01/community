@@ -13,6 +13,8 @@ import com.ktb.lukas.dto.PostResponseDto;
 import com.ktb.lukas.entity.Post;
 import com.ktb.lukas.entity.User;
 import com.ktb.lukas.event.PostViewedEvent;
+import com.ktb.lukas.search.PostSearchService;
+import com.ktb.lukas.search.PostSearchOutbox;
 import com.ktb.lukas.exception.CustomException;
 import com.ktb.lukas.exception.ErrorCode;
 import com.ktb.lukas.repository.PostRepository;
@@ -26,8 +28,13 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final com.ktb.lukas.repository.CommentRepository commentRepository;
+    private final com.ktb.lukas.repository.LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
+    private final PostReadService postReadService;
+    private final PostSearchService postSearchService;
+    private final PostSearchOutbox postSearchOutbox;
 
     @Transactional
     public PostResponseDto createPost(Long userId, PostRequestDto request) {
@@ -42,22 +49,23 @@ public class PostService {
         );
 
         Post savedPost = postRepository.save(post);
+        postSearchOutbox.enqueue(savedPost.getId());
         return new PostResponseDto(savedPost);
     }
     // 게시글 단건 조회
-    @Transactional(readOnly = true)
     public PostResponseDto getPost(Long userId, Long postId) {
-        Post post = findPost(postId);
+        PostResponseDto response = postReadService.getPost(postId);
         publisher.publishEvent(
                 new PostViewedEvent(userId, postId)  // postView 이벤트 발행함 스프링 이벤트 시스템이 리스너로 보냄
         );
-        return new PostResponseDto(post);
+        return response;
     }
     // 게시글 전부 조회
     // fetch join을 통해 N+1 문제 해결
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getPosts(int page) {
-        Pageable pageable = PageRequest.of(page, 10);
+    public List<PostResponseDto> getPosts(int page, int size) {
+        validatePage(page, size);
+        Pageable pageable = PageRequest.of(page, size);
 
         return postRepository.findPostsWithAuthor(pageable)
                 .stream()
@@ -65,14 +73,15 @@ public class PostService {
                 .toList();
     }
     // 게시글 검색
-    @Transactional
-    public List<PostResponseDto> getPostsBySearch(String keyword, int page) {
-        Pageable pageable = PageRequest.of(page, 10);
-
-        return postRepository.findByKeyword(keyword, pageable)
-                .stream()
-                .map(PostResponseDto::new)
-                .toList();
+    public List<PostResponseDto> getPostsBySearch(String keyword, int page, int size, String sort) {
+        validatePage(page, size);
+        if (!List.of("recent", "relevance").contains(sort)) throw new CustomException(ErrorCode.INVALID_SEARCH_PAGE);
+        if (keyword == null || keyword.isBlank()) return List.of();
+        String normalized = keyword.strip();
+        if (normalized.length() > 100) throw new CustomException(ErrorCode.INVALID_SEARCH_KEYWORD);
+        Pageable pageable = PageRequest.of(page, size);
+        if (!postSearchService.isEnabled()) return postReadService.searchDatabase(normalized, pageable);
+        return postReadService.getSearchResults(postSearchService.searchIds(normalized, pageable, sort));
     }
 
     // 게시글 수정
@@ -87,6 +96,8 @@ public class PostService {
 
         post.changeTitle(request.getTitle());
         post.changeContent(request.getContent());
+        post.changeImage(request.getImage());
+        postSearchOutbox.enqueue(post.getId());
 
         return new PostResponseDto(post);
     }
@@ -100,11 +111,20 @@ public class PostService {
             throw new CustomException(ErrorCode.POST_DELETE_FORBIDDEN); // 게시글 작성자가 아니면 삭제할 수 없음
         }
 
+        commentRepository.deleteAllByPostId(postId);
+        likeRepository.deleteAllByPostId(postId);
         postRepository.delete(post);
+        postSearchOutbox.enqueue(postId);
+    }
+
+    private void validatePage(int page, int size) {
+        if (page < 0 || size < 1 || size > 100 || (long) page * size + size > 10000) {
+            throw new CustomException(ErrorCode.INVALID_SEARCH_PAGE);
+        }
     }
 
     private Post findPost(Long postId) {
-        return postRepository.findById(postId)
+        return postRepository.findLockedById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
     }
 }

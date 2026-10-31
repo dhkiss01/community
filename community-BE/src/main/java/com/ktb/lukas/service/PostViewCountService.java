@@ -7,7 +7,7 @@ import com.ktb.lukas.exception.CustomException;
 import com.ktb.lukas.exception.ErrorCode;
 import com.ktb.lukas.repository.PostRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 
@@ -23,10 +23,9 @@ public class PostViewCountService {
     @Transactional
     public void increase(Long postId) {    // 수정 필요함 userId를 어떻게 써야할지 아직은 고민된다.
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-            post.increaseViewCount();
+        if (postRepository.incrementViewCount(postId) == 0) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
 
     }
 }

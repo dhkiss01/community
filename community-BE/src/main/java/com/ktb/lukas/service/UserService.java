@@ -48,7 +48,7 @@ public class UserService {
     // 회원 정보 수정
     // 닉네임 또는 프로필 이미지를 수정
     @Transactional
-    public UserResponseDto updateSet(Long userId, UserRequestDto request) {
+    public UserResponseDto updateSet(Long userId, ProfileUpdateRequest request) {
         User user = findId(userId);
 
         // 닉네임이랑 이미지 둘다 안보내면 예외발생

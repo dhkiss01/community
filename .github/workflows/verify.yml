@@ -1,0 +1,48 @@
+name: Verify develop and pull requests
+on:
+  push:
+    branches: [develop, 'feat/**']
+  pull_request:
+    branches: [main, develop]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: community-FE/package-lock.json
+      - run: ./gradlew test bootJar --no-daemon
+        working-directory: community-BE
+      - run: npm ci && npm test
+        working-directory: community-FE
+      - run: docker compose up -d --wait mysql elasticsearch
+      - name: Start backend
+        run: |
+          java -jar community-BE/build/libs/*SNAPSHOT.jar --spring.profiles.active=local,search --spring.elasticsearch.uris=http://localhost:19200 --server.port=18080 > /tmp/dugout-backend.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            curl -fsS http://localhost:18080/actuator/health && break
+            sleep 2
+          done
+          curl -fsS http://localhost:18080/actuator/health
+      - run: node scripts/integration-test.mjs
+      - run: npx playwright install --with-deps chromium && npm run test:e2e
+        working-directory: community-FE
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-diagnostics
+          path: |
+            community-BE/build/reports/tests/
+            community-FE/test-results/
+            /tmp/dugout-backend.log
+      - if: always()
+        run: docker compose down

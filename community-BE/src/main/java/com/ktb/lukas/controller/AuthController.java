@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    @org.springframework.beans.factory.annotation.Value("${app.auth.secure-cookie:true}")
+    private boolean secureCookie;
 
     // 로그인
     @PostMapping("/auth")
@@ -29,7 +31,7 @@ public class AuthController {
         ResponseCookie refreshCookie = ResponseCookie
                 .from("refreshToken", result.getRefreshToken())
                 .httpOnly(true)
-                .secure(true)
+                .secure(secureCookie)
                 .path("/")
                 .maxAge(14 * 24 * 60 * 60)
                 .sameSite("Lax")
@@ -64,7 +66,7 @@ public class AuthController {
         if (result.getNewRefreshToken() != null) {
             ResponseCookie cookie = ResponseCookie.from("refreshToken", result.getNewRefreshToken())
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(secureCookie)
                     .path("/")
                     .maxAge(14 * 24 * 60 * 60)
                     .sameSite("Lax")

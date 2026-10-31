@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 public class CommentRequest {
 
     @NotBlank
+    @jakarta.validation.constraints.Size(max = 1000)
     private String comment;
 
 

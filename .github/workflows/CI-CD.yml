@@ -22,7 +22,7 @@ jobs:
 
       # 3. 의존성 설치 및 빌드
       - name: Install dependencies
-        run: npm ci
+        run: npm ci && npm test
         working-directory: ./community-FE
 
 
@@ -46,7 +46,7 @@ jobs:
 
       # 7. Gradle 빌드
       - name: Build with Gradle
-        run: ./gradlew build -x test
+        run: ./gradlew build --no-daemon
         working-directory: ./community-BE
 
       # 8. Docker 로그인

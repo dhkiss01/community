@@ -47,11 +47,12 @@ public class PostController {
     // 전체 게시글 조회
     @GetMapping
     public ApiResponse<List<PostResponseDto>> getPosts(
-            @RequestParam(value = "page", defaultValue = "0") int page
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
     ) {
 
         // 서비스에서 모든 게시글 리스트를 가져옵니다.
-        List<PostResponseDto> result = postService.getPosts(page);
+        List<PostResponseDto> result = postService.getPosts(page, size);
 
         return ApiResponse.success(
                 "모든 게시글 가져오기 성공",
@@ -78,9 +79,10 @@ public class PostController {
     @GetMapping("/search")
     public ApiResponse<List<PostResponseDto>> getPostByKeyword(@RequestParam String keyword,
                                                          @RequestParam(value = "page", defaultValue = "0") int page,
-                                                         @RequestParam(value = "size", defaultValue = "10") int size
+                                                         @RequestParam(value = "size", defaultValue = "10") int size,
+                                                         @RequestParam(defaultValue = "relevance") String sort
     ) {
-        List<PostResponseDto> result = postService.getPostsBySearch(keyword, page);
+        List<PostResponseDto> result = postService.getPostsBySearch(keyword, page, size, sort);
 
         return ApiResponse.success(
             "게시글 검색 성공",

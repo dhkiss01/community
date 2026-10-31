@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,7 +24,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         return queryFactory
                 .selectFrom(post)
                 .join(post.author, user).fetchJoin()
-                .orderBy(post.createdAt.desc())
+                .orderBy(post.createdAt.desc(), post.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -32,15 +34,30 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     public List<Post> findByKeyword(@Param("keyword") String keyword, Pageable pageable){
         return queryFactory
                 .selectFrom(post)
-                .join(post.author, user)
+                .join(post.author, user).fetchJoin()
                 .where(
                         post.title.contains(keyword)
                                 .or(post.content.contains(keyword)))
-                .orderBy(post.createdAt.desc())
+                .orderBy(post.createdAt.desc(), post.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
+    }
+
+    public List<Post> findAllWithAuthorByIdIn(Collection<Long> ids) {
+        if (ids.isEmpty()) return List.of();
+        return queryFactory.selectFrom(post)
+                .join(post.author, user).fetchJoin()
+                .where(post.id.in(ids))
+                .fetch();
+    }
+
+    public Optional<Post> findWithAuthorById(Long id) {
+        return Optional.ofNullable(queryFactory.selectFrom(post)
+                .join(post.author, user).fetchJoin()
+                .where(post.id.eq(id))
+                .fetchOne());
     }
 
 }

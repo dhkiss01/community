@@ -1,63 +1,29 @@
 <!doctype html>
-<html lang="kr">
-<head>
+<html lang="ko">
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="/config.js"></script>
-    <link
-            rel="stylesheet"
-            href="../css/board.css"
-            crossorigin="anonymous"
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#182b26" />
+    <meta
+      name="description"
+      content="경기는 끝나도 이야기는 계속. 야구 팬들이 함께 쓰는 더그아웃."
     />
-    <title>게시판 상세</title>
-</head>
-<body>
-<section class="wrap">
-    <section class="head">
-        <h1 class="title"></h1>
-        <div class="writerWrap">
-            <picture class="profileImg">
-                <img class="img" src="/public/profile_default.svg" />
-            </picture>
-            <h2 class="nickname"></h2>
-            <h3 class="createdAt"></h3>
-            <div class="mod hidden">
-                <button id="modifyBtn">수정</button>
-                <button id="deleteBtn">삭제</button>
-            </div>
-        </div>
-    </section>
-    <section class="body">
-        <div class="contentImg"></div>
-        <article class="content"></article>
-        <article class="bodyWrap">
-            <div class="commentWrap">
-                <button class="countItem likeButton" type="button" aria-pressed="false">
-                    <h3></h3>
-                    <p>좋아요수</p>
-                </button>
-                <div class="countItem viewCount">
-                    <h3></h3>
-                    <p>조회수</p>
-                </div>
-                <div class="countItem commentCount">
-                    <h3></h3>
-                    <p>댓글</p>
-                </div>
-            </div>
-        </article>
-    </section>
-    <section class="comment">
-        <div class="commentInputWrap">
-            <textarea placeholder="댓글을 남겨주세요!"></textarea>
-            <div>
-                <button class="commentInputBtn">댓글 등록</button>
-            </div>
-        </div>
-        <div class="commentList"></div>
-    </section>
-</section>
-<div class="background"></div>
-</body>
-<script src="../js/board.js" type="module"></script>
+    <title>게시글 · 더그아웃</title>
+    <link rel="icon" href="/public/dugout.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/baseball.css" />
+    <script src="/config.js"></script>
+    <script type="module" src="/js/baseball.js"></script>
+  </head>
+  <body data-page="post">
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header id="site-header"></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="site-footer">
+      <a href="/">DUGOUT<span>더그아웃</span></a>
+      <p>같은 야구, 다른 이야기. 서로의 응원을 존중해요.</p>
+      <span>BASEBALL, TOGETHER.</span>
+    </footer>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <noscript>더그아웃을 이용하려면 JavaScript를 활성화해주세요.</noscript>
+  </body>
 </html>

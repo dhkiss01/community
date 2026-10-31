@@ -1,46 +1,29 @@
 <!doctype html>
-<html lang="kr">
-<head>
+<html lang="ko">
+  <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="/config.js"></script>
-    <title>게시글 수정</title>
-    <link
-            rel="stylesheet"
-            href="../css/board-write.css"
-            crossorigin="anonymous"
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#182b26" />
+    <meta
+      name="description"
+      content="경기는 끝나도 이야기는 계속. 야구 팬들이 함께 쓰는 더그아웃."
     />
-</head>
-<body>
-<div class="wrap">
-    <h2>게시글 수정</h2>
-    <div class="inputBox">
-        <label>제목*</label>
-        <input
-                type="text"
-                id="title"
-                placeholder="제목을 입력해 주세요. (최대 26자)"
-        />
-    </div>
-    <div class="inputBox">
-        <label>내용*</label>
-        <textarea id="content"></textarea>
-        <p class="helperText" name="content"></p>
-    </div>
-    <div class="inputBox">
-        <label class="non-border">이미지</label>
-        <label id="imagePreviewText"></label>
-        <input
-                class="non-border"
-                type="file"
-                id="image"
-                placeholder="파일을 선택해주세요."
-                accept="image/*"
-        />
-    </div>
-    <button id="submit">수정하기</button>
-</div>
-<div class="background"></div>
-</body>
-<script src="../js/board-write.js" type="module"></script>
+    <title>이야기 수정 · 더그아웃</title>
+    <link rel="icon" href="/public/dugout.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/css/baseball.css" />
+    <script src="/config.js"></script>
+    <script type="module" src="/js/baseball.js"></script>
+  </head>
+  <body data-page="edit">
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header id="site-header"></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="site-footer">
+      <a href="/">DUGOUT<span>더그아웃</span></a>
+      <p>같은 야구, 다른 이야기. 서로의 응원을 존중해요.</p>
+      <span>BASEBALL, TOGETHER.</span>
+    </footer>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <noscript>더그아웃을 이용하려면 JavaScript를 활성화해주세요.</noscript>
+  </body>
 </html>
