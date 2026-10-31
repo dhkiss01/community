@@ -1,5 +1,5 @@
 {
-  "name": "your-project-name",
+  "name": "dugout-community",
   "version": "1.0.0",
   "type": "module",
   "main": "app.js",
@@ -7,7 +7,9 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "node --test test/*.test.js",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "cookie-parser": "^1.4.6",
@@ -17,5 +19,9 @@
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.11",
     "sweetalert2": "^11.7.27"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "prettier": "3.6.2"
   }
 }

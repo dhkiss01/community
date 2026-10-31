@@ -11,7 +11,9 @@ public class PostRequestDto {
     private String title;
 
     @NotBlank                               // 공백 여부 어노테이션
+    @Size(max = 20000)
     private String content;
 
+    @Size(max = 200)
     private String image;
 }

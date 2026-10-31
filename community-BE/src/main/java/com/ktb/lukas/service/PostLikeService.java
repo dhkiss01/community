@@ -22,7 +22,7 @@ public class PostLikeService {
     private final LikeRepository likeRepository;
 
     public int insertLike(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findLockedById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -41,7 +41,7 @@ public class PostLikeService {
     }
 
     public int deleteLike(Long postId, Long userId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findLockedById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         Postlike like = likeRepository.findByPostIdAndUserId(postId, userId)

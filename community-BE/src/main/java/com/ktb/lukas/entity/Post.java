@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseTime{
@@ -23,7 +24,7 @@ public class Post extends BaseTime{
     @Column(name = "post_title")
     private String title;
 
-    @Column(name = "post_content")
+    @Column(name = "post_content", columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "post_image")
@@ -47,6 +48,8 @@ public class Post extends BaseTime{
         this.commentCount = 0;
 
     }
+
+    public void changeImage(String image) { this.image = image; }
 
     public void changeTitle(String title) {
         this.title = title;

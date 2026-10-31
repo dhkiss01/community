@@ -3,6 +3,7 @@ package com.ktb.lukas.controller;
 import com.ktb.lukas.exception.CustomException;
 import com.ktb.lukas.exception.ErrorCode;
 import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.ktb.lukas.dto.*;
 import com.ktb.lukas.api.ApiResponse;
 import com.ktb.lukas.service.UserService;
@@ -30,20 +31,24 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserResponseDto getUser(@PathVariable Long userId) {
+    public UserResponseDto getUser(@AuthenticationPrincipal Long actorId, @PathVariable Long userId) {
+        requireOwner(actorId, userId);
         return userService.getUser(userId);
     }
 
     @PatchMapping("/{userId}")
     public UserResponseDto updateSet(
+            @AuthenticationPrincipal Long actorId,
             @PathVariable Long userId,
-            @Valid @RequestBody UserRequestDto request
+            @Valid @RequestBody ProfileUpdateRequest request
     ) {
+        requireOwner(actorId, userId);
         return userService.updateSet(userId, request);
     }
 
     @DeleteMapping("/{userId}")
-    public ApiResponse<Void> deleteUser(@PathVariable Long userId) {
+    public ApiResponse<Void> deleteUser(@AuthenticationPrincipal Long actorId, @PathVariable Long userId) {
+        requireOwner(actorId, userId);
         userService.deleteUser(userId);
         return new ApiResponse(
                 "SUCCESS",
@@ -52,6 +57,10 @@ public class UserController {
         );
     }
 
+
+    private void requireOwner(Long actorId, Long userId) {
+        if (!userId.equals(actorId)) throw new CustomException(ErrorCode.FORBIDDEN);
+    }
 
     @GetMapping
     public ApiResponse<String> checkDuplicate(

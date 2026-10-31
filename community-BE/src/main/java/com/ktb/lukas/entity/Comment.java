@@ -15,7 +15,7 @@ public class Comment extends BaseTime{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)

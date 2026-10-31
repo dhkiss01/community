@@ -1,72 +1,103 @@
-# 🚀 커뮤니티 서비스
+# 더그아웃 · DUGOUT
 
-> **Spring Boot와 Kubernetes 기반의 백엔드 커뮤니티 서비스 API Engine**
+경기는 끝나도 이야기는 계속됩니다. 더그아웃은 직관 후기, 경기 분석, 응원 이야기를 나누는 야구 커뮤니티입니다.
 
-<br />
+구단 색상을 모두 가져오기보다 짙은 초록과 따뜻한 흰색으로 화면을 정리했습니다. 회원가입 없이 글을 읽고 검색할 수 있고, 글이나 댓글을 남길 때 로그인합니다.
 
-## 📌 목차
-- [프로젝트 소개](#-프로젝트-소개)
-- [주요 기능](#-주요-기능)
-- [기술 스택](#-기술-스택)
-- [시작하기 (Getting Started)](#-시작하기-getting-started)
-- [API 명세서](#-api-명세서)
-- [개발 인원](#-개발-인원)
+<img src="docs/images/desktop.png" alt="더그아웃 커뮤니티의 게시글 목록과 구단 검색 화면" width="900">
 
-<br />
+[모바일 화면 보기](docs/images/mobile.png)
 
-## 📝 프로젝트 소개
-* **개발 기간**: 2026.05 ~ 진행 중
-* **서비스 설명**: 
-  안정적인 유저 관리와 보안 강화를 위해 JWT 기반의 인증/인가 시스템을 구축한 커뮤니티 백엔드 서비스입니다. GitHub Actions, Helm, Argo CD를 활용한 GitOps CI/CD 파이프라인 구축 및 Kubernetes, Prometheus, Grafana 기반의 모니터링 환경에서 확장성 높고 안정적인 아키텍처를 목표로 개발되었습니다.
+## 바로 실행하기
 
-<br />
+Docker와 Docker Compose가 설치되어 있다면 저장소 루트에서 실행하세요.
 
-## ⚙️ 주요 기능
-- **유저 CRUD**: 회원가입, 프로필 조회, 회원 정보 수정, 탈퇴 기능 구현
-- **인증 및 인가**: JWT(JSON Web Token)를 이용한 안전한 토큰 기반 로그인/인증 처리
-- **게시글 / 댓글 관리**: 커뮤니티 게시글 작성, 조회, 수정, 삭제 기능
-
-<br />
-
-## 🛠 기술 스택
-
-### Backend
-![Java](https://img.shields.io/badge/Java-007396?style=flat-square&logo=OpenJDK&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=Spring-Boot&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white)
-
-### DevOps & CI/CD
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=GitHub-Actions&logoColor=white)
-![ArgoCD](https://img.shields.io/badge/Argo_CD-EF7B4D?style=flat-square&logo=Argo&logoColor=white)
-![Helm](https://img.shields.io/badge/Helm-0F1689?style=flat-square&logo=Helm&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=Kubernetes&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=Docker&logoColor=white)
-![AWS RDS](https://img.shields.io/badge/AWS_RDS-527FFF?style=flat-square&logo=Amazon-RDS&logoColor=white)
-
-### Monitoring & Observability
-![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=Prometheus&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=Grafana&logoColor=white)
-
-### Environment & Tools
-![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=Git&logoColor=white)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat-square&logo=GitHub&logoColor=white)
-
-<br />
-
-## 🏁 시작하기 (Getting Started)
-
-프로젝트를 로컬 환경에서 실행하는 방법입니다.
-
-### Prerequisites (사전 요구사항)
-- Java 17 이상
-- Gradle
-- MySQL (또는 AWS RDS 연결 설정)
-- Docker / Kubernetes / Helm / Argo CD (선택 사항)
-- Prometheus & Grafana (모니터링 옵션)
-
-### Installation & Execution (설치 및 실행)
-
-1. Repository 클론
 ```bash
-git clone [https://github.com/dhkiss01/community.git](https://github.com/dhkiss01/community.git)
+git clone https://github.com/dhkiss01/community.git
 cd community
+git switch feat/baseball-community
+docker compose up -d --build
+```
+
+첫 실행에는 이미지와 의존성을 받느라 몇 분 걸릴 수 있습니다. 준비되면 **http://localhost:3000** 에서 열립니다. 빈 게시판에 샘플 글을 넣고 싶다면 Node.js 24 이상에서 아래 명령을 한 번 실행하세요.
+
+```bash
+node scripts/seed-demo.mjs
+```
+
+샘플 계정은 `demo@dugout.local` / `DugoutDemo1!`입니다. 실제 경기 결과가 아닌 예시 글이며, 자동으로 추가되지 않습니다.
+
+종료는 `docker compose down`입니다. DB와 검색 데이터는 볼륨에 남습니다.
+
+## 들어 있는 기능
+
+- 글 작성·수정·삭제, 댓글 작성·수정·삭제, 공감
+- Elasticsearch Nori 기반 한국어 검색과 구단 약칭 검색 (`LG`, `엘지`, `트윈스` 등)
+- 관련도순·최신순 검색, 구단 이름 바로 검색, 검색어가 유지되는 주소
+- 모바일 화면, 키보드 탐색, 로딩·빈 결과·오류 안내, 글쓰기 임시 보관
+- 게시글·댓글 작성자 일괄 조회와 동시 요청 시 카운트 갱신
+
+구단 버튼은 해당 구단 이름으로 게시글을 검색합니다. 실시간 경기 일정·순위 API는 연결하지 않았습니다.
+
+## 개발 환경
+
+백엔드는 Java 21 / Spring Boot 3.5.5, 프런트엔드는 HTML·CSS·JavaScript / Express입니다. DB는 MySQL 8.4, 검색 엔진은 Elasticsearch 8.18.5 + Nori를 사용합니다.
+
+전체 앱을 Docker로 빌드하지 않고 실행하려면:
+
+```bash
+# 저장소 루트: DB와 검색 엔진만 실행
+docker compose up -d mysql elasticsearch
+
+# 첫 번째 터미널 (JAVA_HOME은 Java 21)
+cd community-BE
+./gradlew bootRun --args='--spring.profiles.active=local,search --spring.elasticsearch.uris=http://localhost:19200 --server.port=18080'
+
+# 두 번째 터미널
+cd community-FE
+npm ci
+API_UPSTREAM=http://localhost:18080 npm start
+```
+
+로컬 설정은 `application-local.properties`에 있습니다. 로컬 프로필은 테이블을 생성·갱신하고 테스트용 자격 증명을 사용하므로 운영에 사용하지 마세요. 이미지 주소를 입력해 사진을 첨부할 수 있으며, 기존 S3 업로드 API를 사용하려면 별도의 AWS 설정이 필요합니다.
+
+## 테스트
+
+```bash
+# 외부 서비스 없이: JPA 조회 쿼리 수, 권한 및 CRUD 회귀 테스트
+cd community-BE
+./gradlew test
+
+# 프런트엔드 서버와 API 프록시
+cd ../community-FE
+npm ci
+npm test
+
+# 로컬 백엔드·MySQL·Elasticsearch가 실행 중일 때
+cd ..
+node scripts/integration-test.mjs
+cd community-FE
+npx playwright install chromium
+npm run test:e2e
+```
+
+브라우저 테스트는 데스크톱과 모바일에서 회원가입 → 글 작성 → 검색 → 댓글 → 수정 → 삭제를 확인합니다. 자세한 검증 범위와 결과는 [테스트 기록](docs/testing.md)에 적었습니다.
+
+## 검색을 운영 환경에 붙일 때
+
+검색은 `search` 프로필 또는 `APP_SEARCH_ENABLED=true`로 켭니다. 게시글과 검색 색인은 outbox를 통해 비동기로 동기화되므로 검색 반영까지 잠깐의 지연이 있습니다.
+
+기존 DB에는 outbox 테이블과 본문·댓글 길이 마이그레이션을 먼저 적용하고, 기존 글은 한 번 backfill해야 합니다. 설정·장애 복구·재색인 순서는 [검색 운영 문서](docs/search.md)를 확인하세요. 운영 Elasticsearch에는 인증과 TLS를 설정해야 합니다. Compose의 인증 없는 단일 노드는 로컬 개발용입니다.
+
+## develop에서 main으로
+
+기능 작업은 `feat/*` 브랜치에서 진행하고, `feat: ...` 형식으로 커밋합니다. 검토한 변경을 `develop`에 모으고 `main`을 대상으로 PR을 만듭니다. `feat/*`·`develop` 푸시와 PR에서는 자동 검증을 실행합니다.
+
+```bash
+git push -u origin develop
+gh pr create --base main --head develop --title "야구 커뮤니티 개편 및 Elasticsearch 검색 도입" --body-file docs/pull-request.md
+```
+
+PR을 병합하면 기존 `main` 배포 워크플로가 실행됩니다. 병합 전에는 운영 DB 마이그레이션과 검색 환경변수, GitHub Actions의 기존 배포 시크릿을 확인하세요.
+
+화면 구성의 근거와 참고한 자료는 [디자인 메모](docs/design.md)에 모았습니다.

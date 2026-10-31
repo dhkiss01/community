@@ -1,16 +1,12 @@
-FROM node:22-alpine
-
+FROM node:24-alpine
 WORKDIR /app
-
-ENV NODE_ENV=production
-
 COPY package*.json ./
-RUN npm ci --omit=dev
-
-COPY --chown=node:node . .
-
-USER node
-
+RUN npm ci --omit=dev --ignore-scripts
+COPY app.js ./
+COPY html ./html
+COPY css ./css
+COPY js ./js
+COPY public ./public
 EXPOSE 3000
-
+USER node
 CMD ["node", "app.js"]

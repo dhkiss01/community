@@ -16,3 +16,7 @@ pnpm-debug.log*
 build/
 out/
 application.yaml
+
+.gradle/
+playwright-report/
+test-results/

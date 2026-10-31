@@ -39,6 +39,9 @@ public enum ErrorCode {
     INVALID_PROFILE_IMAGE(HttpStatus.BAD_REQUEST, "유효한 파일이 아닙니다.(올바른 사진 확장자가 아닐 경우)"),
 
     // Post
+    INVALID_SEARCH_PAGE(HttpStatus.BAD_REQUEST, "페이지 또는 정렬 조건을 확인해주세요."),
+    INVALID_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "검색어는 100자 이내로 입력해주세요."),
+    SEARCH_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "검색을 잠시 사용할 수 없습니다. 잠시 후 다시 시도해주세요."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     POST_AUTHOR_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글 작성자를 찾을 수 없습니다."),
     POST_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "게시글 작성자만 수정할 수 있습니다."),

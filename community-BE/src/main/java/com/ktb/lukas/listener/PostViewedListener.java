@@ -2,8 +2,6 @@ package com.ktb.lukas.listener;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.ktb.lukas.event.PostViewedEvent;
 import com.ktb.lukas.service.PostViewCountService;
@@ -19,7 +17,6 @@ public class PostViewedListener {
     private final PostViewCountService postViewCountService;
 
     @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handle(PostViewedEvent event) {
         postViewCountService.increase(event.getPostId());
     }

@@ -27,7 +27,7 @@
         public CommentResponse createComment(Long userId, Long postId, CommentRequest request) {
             User commentAuthor = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-            Post post = postRepository.findById(postId)
+            Post post = postRepository.findLockedById(postId)
                     .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
             Comment comment = new Comment(
@@ -55,10 +55,12 @@
         @Transactional
         public CommentResponse updateComment(
                 Long userId,
+                Long postId,
                 Long commentId,
                 CommentRequest request
         ) {
             Comment comment  = findComment(commentId);
+            if (!comment.getPost().getId().equals(postId)) throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
 
             if (!comment.getUser().getId().equals(userId)) {
                 throw new CustomException(ErrorCode.COMMENT_UPDATE_FORBIDDEN);
@@ -72,9 +74,10 @@
         @Transactional
         public void deleteComment(Long userId, Long postId, Long commentId) {
 
-            Post post = postRepository.findById(postId)
+            Post post = postRepository.findLockedById(postId)
                     .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
             Comment comment  = findComment(commentId);
+            if (!comment.getPost().getId().equals(postId)) throw new CustomException(ErrorCode.COMMENT_NOT_FOUND);
 
             if (!comment.getUser().getId().equals(userId)) {
                 throw new CustomException(ErrorCode.COMMENT_DELETE_FORBIDDEN);
