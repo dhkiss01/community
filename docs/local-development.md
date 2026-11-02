@@ -50,3 +50,18 @@ API_UPSTREAM=http://localhost:18080 npm start
 DB 접속 정보는 `DB_URL`, `DB_NAME`, `DB_PASSWORD`로 바꿀 수 있습니다. 이미지 업로드 API를 연결할 때는 별도의 AWS 설정이 필요합니다.
 
 컨테이너를 종료할 때는 `docker stop community-mysql-local community-elasticsearch-local`을 사용합니다. 데이터는 이름 있는 볼륨에 남습니다.
+
+## 프런트엔드 컨테이너
+
+저장소 루트에서 이미지를 빌드하고 실행합니다.
+
+```bash
+docker build -t community-fe-local community-FE
+docker run --rm --read-only --cap-drop=ALL --security-opt=no-new-privileges -p 127.0.0.1:3000:3000 -e API_UPSTREAM=http://host.docker.internal:18080 community-fe-local
+```
+
+`host.docker.internal`은 Docker Desktop에서 호스트의 백엔드에 연결하는 주소입니다. 다른 환경에서는 접근 가능한 백엔드 주소로 `API_UPSTREAM`을 지정하세요.
+
+의존성은 별도 단계에서 lockfile 기준으로 설치하고, 실행 이미지에는 운영 의존성과 공개 파일만 복사합니다. 실행 이미지는 셸과 npm이 없는 Node.js 24 distroless이며 UID/GID 65532로 실행합니다. 앱 파일은 root 소유로 유지합니다. Kubernetes chart도 읽기 전용 파일시스템, 권한 상승 차단, 모든 Linux capability 제거를 적용합니다.
+
+두 베이스 이미지는 멀티아키텍처 digest로 고정했습니다. 보안 업데이트 시 태그에 해당하는 새 digest를 확인해 Dockerfile을 갱신하고, 컨테이너 테스트를 다시 실행하세요. distroless는 Node.js를 entrypoint로 사용하므로 `docker run 이미지명 npm start`나 셸 접속 대신 `docker logs`와 `docker inspect`로 상태를 확인합니다.

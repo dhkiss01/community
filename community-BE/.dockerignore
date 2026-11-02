@@ -3,3 +3,5 @@ build
 .idea
 *.log
 .env
+.env.*
+.DS_Store

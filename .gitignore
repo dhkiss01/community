@@ -12,6 +12,15 @@ yarn-error.log*
 pnpm-debug.log*
 /.cache
 .DS_Store
+# 도커 컴포즈 설정은 저장소에 추가하지 않습니다.
+compose.yml
+compose.yaml
+compose.*.yml
+compose.*.yaml
+docker-compose.yml
+docker-compose.yaml
+docker-compose.*.yml
+docker-compose.*.yaml
 *.jar
 build/
 out/

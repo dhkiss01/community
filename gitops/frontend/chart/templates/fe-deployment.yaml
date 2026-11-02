@@ -21,6 +21,13 @@ spec:
         app: {{ .Values.app.name }}
 
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       imagePullSecrets:
             - name: {{ .Values.imagePullSecret }}
       topologySpreadConstraints:
@@ -35,6 +42,11 @@ spec:
         - name: frontend
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
           env:
             - name: API_BASE_URL
               value: {{ .Values.api.baseUrl | quote }}

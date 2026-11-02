@@ -1,4 +1,21 @@
-node_modules
-.env
-playwright-report
-test-results
+# 운영 이미지에 필요한 파일만 빌드에 전달합니다.
+**
+!package.json
+!package-lock.json
+!app.js
+!html/
+!html/**
+!css/
+!css/**
+!js/
+!js/**
+!public/
+!public/**
+
+**/.DS_Store
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx

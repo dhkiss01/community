@@ -36,6 +36,10 @@ jobs:
         working-directory: community-BE
       - run: npm ci && npm test
         working-directory: community-FE
+      - name: 제한된 권한으로 프런트엔드 컨테이너 검증
+        run: |
+          docker build -t community-frontend-ci community-FE
+          docker run --rm --read-only --cap-drop=ALL --security-opt=no-new-privileges --volume "$PWD/community-FE/test:/app/test:ro" community-frontend-ci --test /app/test/server.test.js
       - name: Prepare search dependencies
         env:
           MYSQL_CONTAINER_ID: ${{ job.services.mysql.id }}
