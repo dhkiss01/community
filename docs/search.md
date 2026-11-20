@@ -12,7 +12,7 @@ MySQL이 원본 데이터입니다. Elasticsearch에는 게시글 ID, 제목, �
 | --- | --- |
 | `ELASTICSEARCH_URIS` | Elasticsearch 접속 주소 |
 | `SPRING_ELASTICSEARCH_USERNAME`, `SPRING_ELASTICSEARCH_PASSWORD` | 인증을 사용하는 클러스터의 계정 |
-| `POST_SEARCH_INDEX` | 기본 `community-posts-v2` |
+| `POST_SEARCH_INDEX` | 기본 `community-posts-v3` |
 | `POST_SEARCH_REINDEX` | 초기에는 `true`, backfill 후에는 `false` |
 
 운영에서는 HTTPS와 신뢰할 수 있는 인증서를 설정하고 인덱스 생성, 조회, bulk 쓰기에 필요한 권한을 부여합니다. 기존 배포 설정이 `SPRING_CONFIG_LOCATION`으로 기본 설정을 대체한다면 `app.search.*`, `spring.elasticsearch.*` 설정도 함께 제공해야 합니다.
@@ -27,7 +27,7 @@ MySQL이 원본 데이터입니다. Elasticsearch에는 게시글 ID, 제목, �
 
 ## 분석기와 검색 범위
 
-제목과 내용을 Nori로 분석하고 제목에 더 높은 가중치를 줍니다. 구단의 한글, 영문 약칭과 팀 이름은 검색 동의어로 연결합니다. 자연어에 답을 생성하는 기능은 아닙니다. 여러 단어는 AND 조건으로 검색합니다.
+제목과 내용을 Nori로 분석하고 제목에 더 높은 가중치를 줍니다. 분석기는 공백을 지운 뒤(`C J` → `CJ`) Nori mixed로 복합어를 원형과 분해어로 함께 나누고, 조사를 제거한 다음 소문자로 바꿉니다. 자연어에 답을 생성하는 기능은 아닙니다. 여러 단어는 AND 조건으로 검색합니다.
 
 `GET /posts/search?keyword=엘지&sort=relevance&page=0&size=10`
 
@@ -46,3 +46,7 @@ MySQL이 원본 데이터입니다. Elasticsearch에는 게시글 ID, 제목, �
 `category=FREE|REVIEW|ANALYSIS`로 목록과 검색을 같은 게시판으로 제한합니다. 생략하면 전체글입니다. 제목에 “직관”이나 “분석”이 없어도 저장된 분류로 조회합니다. 글 수정 시 분류를 변경하면 outbox를 통해 검색 필터에도 반영됩니다.
 
 분류는 v2 인덱스의 keyword 필드로 저장합니다. 새 인덱스를 처음 만들면 기존 글을 자동으로 backfill합니다. 기존 v1 인덱스를 쓰는 배포는 `POST_SEARCH_INDEX=community-posts-v2`로 바꾸고 새 인덱스를 준비하세요. 기존 인덱스를 재사용할 경우 category 매핑을 추가하고 명시적으로 전체 재색인해야 합니다.
+
+## v3 분석기 변경
+
+v3 인덱스는 구단 동의어와 사용자 사전을 쓰지 않습니다. `LG`와 `엘지`는 서로 다른 단어로 검색됩니다. 새 인덱스를 처음 만들면 기존 글을 자동으로 backfill합니다.
