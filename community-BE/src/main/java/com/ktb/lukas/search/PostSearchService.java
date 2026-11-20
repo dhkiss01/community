@@ -29,7 +29,7 @@ public class PostSearchService {
         var query = new co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery.Builder()
                 .must(q -> q.multiMatch(match -> match.query(normalized)
                         .fields("title^2", "content").type(TextQueryType.CrossFields)
-                        .operator(Operator.And).analyzer("baseball_search")));
+                        .operator(Operator.And).analyzer("search_analyzer")));
         if (category != null) query.filter(q -> q.term(t -> t.field("category").value(category.name())));
         try {
             return client.search(request -> request.index(properties.getIndex())
